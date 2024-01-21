@@ -1,6 +1,6 @@
 const express = require("express");
 const jwt = require('jsonwebtoken');
-const User = require('./../../config/models/users.js');
+const { db } = require('../../config/firebase.js');
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
@@ -11,9 +11,10 @@ router.post("/login", async (req, res) => {
     }
 
     try {
-        const existingUser = await User.findOne({ email: username, password: password });
+        const usersRef = db.collection('clients');
+        const querySnapshot = await usersRef.where('email', '==', username).where('password', '==', password).get();
 
-        if (existingUser) {
+        if (!querySnapshot.empty) {
             let accessToken = jwt.sign({
                 data: password
             }, 'access', { expiresIn: 60 * 60 });

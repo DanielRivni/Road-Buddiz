@@ -1,19 +1,22 @@
 const express = require('express');
-const User = require('../../config/models/users.js');
+const { db } = require('../../config/firebase.js');
 const router = express.Router();
 
 // DELETE route to delete user
 router.delete('/delete_account', async (req, res) => {
     try {
-
         const username = req.session.authorization.username;
 
         // Find and delete the user based on the username
-        const deletedUser = await User.findOneAndDelete({ email: username });
+        const usersRef = db.collection('volunteers');
+        const querySnapshot = await usersRef.where('email', '==', username).get();
 
-        if (!deletedUser) {
+        if (querySnapshot.empty) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+        const deletedUser = querySnapshot.docs[0].data();
+        await querySnapshot.docs[0].ref.delete();
 
         // Clear the session after deleting the user
         req.session.destroy();

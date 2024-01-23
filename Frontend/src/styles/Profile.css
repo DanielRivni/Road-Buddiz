@@ -1,0 +1,45 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.profile-card {
+  width: 20%;
+  height: 75%;
+  min-width: 400px;
+  max-width: 450px;
+  max-height: 500px;
+  padding: 4em 2em;
+  text-align: center;
+  
+}
+
+.profile-avatar {
+  margin: 0 auto 20px;
+}
+
+.profile-card .MuiCardActions-root {
+  display: flex;
+  justify-content: center;
+}
+
+/* Adjust the font size for inputs, headings, paragraphs, and buttons */
+.profile-card input,
+.profile-card h5,
+.profile-card p,
+.profile-card button {
+  font-size: 1.1em; 
+}
+
+.profile-card input {
+  width: 100%; 
+  padding: 8px; 
+  text-align: right;
+  box-sizing: border-box;
+}
+
+.profile-card :placeholder-shown {
+  text-align: right;
+}

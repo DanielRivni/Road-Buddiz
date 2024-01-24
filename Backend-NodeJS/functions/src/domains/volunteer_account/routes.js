@@ -29,7 +29,7 @@ router.delete('/delete_account', async (req, res) => {
 });
 
 // Logout route
-router.get('/logout', async (req, res) => {
+router.post('/logout', async (req, res) => {
     try {
         await new Promise((resolve, reject) => {
             // Destroy the session

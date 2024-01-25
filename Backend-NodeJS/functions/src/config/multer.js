@@ -3,15 +3,23 @@ const path = require("path");
 const { v4: uuidv4 } = require('uuid')
 const { bucketFB } = require('./firebase.js');
 
-const uploadMultiple = multer({
+const customUpload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 1000000 },
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
-}).array("image", 12);
+}); // use req.files to access the images and req.body to access the text fields
 
-const upload = multer({
+const multipleUploads = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 1000000 },
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+}).array("image", 12); // use req.files to access the files
+
+const singleUpload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 1000000 },
     fileFilter: async function (req, file, cb) {
@@ -59,26 +67,15 @@ async function uploadImage(file, dirPath = "") {
         });
 
         blobStream.on('finish', async () => {
-            resolve(storagePath);
+            const downloadUrl = await blob.getSignedUrl({
+                action: 'read',
+                expires: '01-01-3000', // Replace with an appropriate expiration date
+            });
+            resolve(downloadUrl);
         });
 
         blobStream.end(file.buffer);
     });
 }
 
-async function getImageUrl(storagePath) {
-    return new Promise((resolve, reject) => {
-        const blob = bucketFB.file(storagePath);
-        blob.getSignedUrl({
-            action: 'read',
-            expires: '03-09-2491'
-        }).then(signedUrls => {
-            resolve(signedUrls[0]);
-        }).catch(err => {
-            console.log(err);
-            reject("Error getting image");
-        });
-    });
-}
-
-module.exports = { uploadMultiple, upload, uploadImage };
+module.exports = { multipleUploads, singleUpload, uploadImage, customUpload };

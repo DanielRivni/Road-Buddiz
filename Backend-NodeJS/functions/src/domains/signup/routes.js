@@ -1,19 +1,46 @@
 const express = require("express");
 const { db } = require('../../config/firebase.js');
-const { upload, uploadMultiple, uploadImage } = require('../../config/multer.js');
+const { multipleUploads, singleUpload, uploadImage, customUpload } = require('../../config/multer.js');
 const router = express.Router();
 
-router.post("/signup", async (req, res) => {
+const middleware = customUpload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'username', maxCount: 1 },
+    { name: 'password', maxCount: 1 },
+    { name: 'firstname', maxCount: 1 },
+    { name: 'lastname', maxCount: 1 },
+    { name: 'phone', maxCount: 1 },
+    { name: 'isvol', maxCount: 1 },
+]);
+
+router.post("/signup-form", singleUpload, async (req, res) => {
+    try {
+        console.log(req.file);
+        console.log(req.file.mimetype);
+        //const { username, password } = req.body;
+        //console.log(username);
+        return res.status(200).json({ message: "Success" });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+});
+
+router.post("/signup", middleware, async (req, res) => {
     const { username, password, firstname, lastname, phone, isvol } = req.body;
     const validationResult = validateUserFields(req.body);
-    let user_doc_id = null;
+    const isImageIncluded = req.files && req.files.image && req.files.image.length > 0;
+    const imageDirPath = Boolean(isvol) ? `profile_images/volunteers` : `profile_images/clients`;
+    let userDocRef = null;
 
     if (!validationResult.valid) {
         return res.status(400).json({ message: validationResult.message });
     }
 
     try {
-        if (isvol) {
+        if (Boolean(isvol)) {
             const volunteersRef = db.collection('volunteers');
 
             const usernameQuery = await volunteersRef.where('email', '==', username).get();
@@ -29,7 +56,7 @@ router.post("/signup", async (req, res) => {
                 lastNumber = lastVolunteerQuery.docs[0].data().number;
             }
 
-            const volunteerDocRef = await volunteersRef.add({
+            userDocRef = await volunteersRef.add({
                 email: username,
                 password: password,
                 firstname: firstname,
@@ -38,9 +65,7 @@ router.post("/signup", async (req, res) => {
                 number: lastNumber + 1,
             });
 
-            user_doc_id = volunteerDocRef.id;
-        }
-        else {
+        } else {
             const clientsRef = db.collection('clients');
 
             const usernameQuery = await clientsRef.where('email', '==', username).get();
@@ -48,7 +73,7 @@ router.post("/signup", async (req, res) => {
                 return res.status(409).json({ message: "User already exists!" });
             }
 
-            const clientDocRef = await clientsRef.add({
+            userDocRef = await clientsRef.add({
                 email: username,
                 password: password,
                 firstname: firstname,
@@ -56,10 +81,23 @@ router.post("/signup", async (req, res) => {
                 phone: phone,
             });
 
-            user_doc_id = clientDocRef.id;
         }
 
-        return res.status(200).json({ message: "User successfully registered.", user_doc_id });
+        if (isImageIncluded){
+            const file = {
+                type: req.files.image[0].mimetype,
+                buffer: req.files.image[0].buffer,
+                originalname: req.files.image[0].originalname,
+                fieldname: req.files.image[0].fieldname
+            }
+
+            const imageUrl = await uploadImage(file, `${imageDirPath}/${userDocRef.id}/`);
+            await userDocRef.update({ 
+                imageURL: imageUrl 
+            });
+        }
+
+        return res.status(200).json({ message: "User successfully registered." });
 
     } catch (error) {
         console.error(error);
@@ -67,16 +105,8 @@ router.post("/signup", async (req, res) => {
     }
 });
 
-router.post('/test-upload/:user_doc_id/:isvol', upload, async (req, res) => {
-    const { user_doc_id, isvol } = req.params;
-
-    // Validate params
-    if (!user_doc_id || isvol === undefined) {
-        return res.status(400).json({ message: 'Missing fields' });
-    }
-    if (typeof user_doc_id !== 'string' || (isvol !== 'true' && isvol !== 'false')) {
-        return res.status(400).json({ message: 'Invalid field type. user_doc_id must be a string and isvol must be a boolean.' });
-    }
+/*
+router.post('/test-upload', singleUpload, async (req, res) => {
 
     // check for req.file
     if (!req.file) {
@@ -87,11 +117,12 @@ router.post('/test-upload/:user_doc_id/:isvol', upload, async (req, res) => {
         type: req.file.mimetype,
         buffer: req.file.buffer,
         originalname: req.file.originalname,
+        fieldname: req.file.fieldname
     }
 
     try {
         // Upload the image and get the URL
-        const imageUrl = await uploadImage(file, `profile_images/${user_doc_id}_`);
+        const imageUrl = await uploadImage(file);
 
         // Send a response indicating success
         return res.status(200).json({ message: 'File uploaded successfully', imageUrl });
@@ -101,7 +132,7 @@ router.post('/test-upload/:user_doc_id/:isvol', upload, async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
+*/
 
 function validateUserFields(reqBody) {
     const { username, password, firstname, lastname, phone, isvol } = reqBody;
@@ -118,7 +149,7 @@ function validateUserFields(reqBody) {
         return { valid: false, message: 'Invalid field type. lastname must be a string.' };
     }
 
-    if (isvol === undefined || typeof isvol !== 'boolean') {
+    if (isvol === undefined || (isvol !== 'true' && isvol !== 'false')) {
         return { valid: false, message: 'Invalid isvol value. Please provide a boolean value.' };
     }
 

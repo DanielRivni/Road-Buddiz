@@ -63,7 +63,7 @@ function HomePage() {
               id="sign-up-text"
             >
               <div>עוד לא נרשמת?</div>
-              <a href="https://www.google.com">הירשם כאן</a>
+              <a href="/SignUpPage">הירשם כאן</a>
             </Typography>
           </CardContent>
         </Card>

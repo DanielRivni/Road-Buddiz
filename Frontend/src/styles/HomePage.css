@@ -10,10 +10,11 @@
 #home-page-card {
     width: 30%;
     height: 75%;
-    min-width: 400px;
-    max-width: 450px;
+    min-width: 350px;
+    max-width: 350px;
     max-height: 500px;
     padding: 4em 2em;
+    margin-top: 45px;
 }
 
 .center-div-column {
@@ -21,6 +22,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    
 }
 
 .center-div-row {

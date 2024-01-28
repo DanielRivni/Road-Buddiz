@@ -46,6 +46,7 @@ function SignInCard() {
             </div>
             <div id="home-page-inputs-container" className="center-div-column">
               <TextField
+                error
                 className="home-page-inputs"
                 variant="outlined"
                 placeholder="אימייל או מספר טלפון"

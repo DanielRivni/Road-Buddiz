@@ -12,6 +12,7 @@ import { useState } from "react";
 
 function SignInCard() {
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
 
   const signInUser = async () => {
@@ -24,7 +25,15 @@ function SignInCard() {
   };
 
   const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+    const inputEmail = event.target.value;
+    setEmail(inputEmail);
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(inputEmail);
+      
+    // Update email error state
+    setEmailError(!isValidEmail);
   };
 
   const handlePasswordChange = (event) => {
@@ -46,7 +55,9 @@ function SignInCard() {
             </div>
             <div id="home-page-inputs-container" className="center-div-column">
               <TextField
-                error
+                id="email-error"
+                error={emailError} // Use email error state
+                helperText={emailError ? "אימייל לא תקין" : ""} // Show error message if email is invalid
                 className="home-page-inputs"
                 variant="outlined"
                 placeholder="אימייל או מספר טלפון"

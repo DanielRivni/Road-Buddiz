@@ -11,22 +11,33 @@ import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
-// import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import {addUserToFirestore} from "../middleware/firestore/users/index.js";
 
 function SignUpCard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [userType, setUserType] = useState(1);
+  const [userType, setUserType] = useState(2);
   const [password, setPassword] = useState("");
-  //   const [showPassword, setShowPassword] = useState(false);
 
   const registerUser = async () => {
-    const userCredentials = await craeteNewUserWithEmailAndPassword(email,password);
+    const userCredentials = await craeteNewUserWithEmailAndPassword(
+      email,
+      password
+    );
+    if (userCredentials)
+      await addUserToFirestore({
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        userType,
+      }, userCredentials?.user?.uid);
     console.log(userCredentials);
-  }
-  
+  };
+
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
   };
@@ -36,7 +47,15 @@ function SignUpCard() {
   };
 
   const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+    const inputEmail = event.target.value;
+    setEmail(inputEmail);
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(inputEmail);
+
+    // Update email error state
+    setEmailError(!isValidEmail);
   };
 
   const handlePhoneNumberChange = (event) => {
@@ -64,9 +83,6 @@ function SignUpCard() {
                 <div>הרשמה</div>
               </Typography>
             </div>
-            {/* <div id = "profile-icon"> */}
-            {/* <PersonAddIcon sx={{ fontSize: 50 }}/> */}
-            {/* </div> */}
             <div
               id="signup-page-inputs-container"
               className="center-div-column"
@@ -86,6 +102,9 @@ function SignUpCard() {
                 onChange={handleLastNameChange}
               ></TextField>
               <TextField
+                id="email-error"
+                error={emailError} // Use email error state
+                helperText={emailError ? "אימייל לא תקין" : ""} // Show error message if email is invalid
                 className="signup-page-inputs"
                 variant="outlined"
                 placeholder="אימייל"
@@ -103,7 +122,6 @@ function SignUpCard() {
               <Select
                 className="signup-page-inputs"
                 variant="outlined"
-                label="סוג משתמש"
                 value={userType}
                 onChange={handleUserTypeChange}
               >

@@ -21,6 +21,20 @@ const useProfileLogic = () => {
   const [editedUsername, setEditedUsername] = useState("");
   const [editedPassword, setEditedPassword] = useState("");
 
+  // Details Logic
+  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+
+  const confirmDelete = () => {
+    // Implement your delete logic here
+    // ...
+    // After successful deletion, you can close the confirmation window
+    closeDeleteConfirmation();
+  };
+
+  const closeDeleteConfirmation = () => {
+    setDeleteConfirmation(false);
+  };
+
   // Buttons Handlers
   const handleEditClick = () => {
     setEditingProfile(true);
@@ -69,6 +83,10 @@ const useProfileLogic = () => {
     editedUsername,
     editedPassword,
     editingAccount,
+    deleteConfirmation,
+    confirmDelete,
+    closeDeleteConfirmation,
+    setDeleteConfirmation,
     setEditedFirstname,
     setEditedLastname,
     setEditedPhone,

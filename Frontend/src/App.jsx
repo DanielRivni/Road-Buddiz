@@ -1,6 +1,7 @@
 import SignUpPage from "./pages/SignUpPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
-import Profile from "./pages/ClientProfile.jsx";
+import ClientProfile from "./pages/ClientProfile.jsx";
+import VolunteerProfile from "./pages/VolunteerProfile.jsx";
 import RequestsPage from "./pages/RequestsPage.jsx";
 // import OpenRequestPage from './pages/OpenRequestPage.jsx'
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -12,7 +13,8 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/Profile" element={<Profile />} />
+          <Route path="/ClientProfile" element={<ClientProfile />} />
+          <Route path="/VolunteerProfile" element={<VolunteerProfile />} />
           <Route path="/SignUpPage" element={<SignUpPage />} />
           <Route path="/RequestsPage" element={<RequestsPage />} />
           <Route path="/VolunteerTaskPage" element={<VolunteerTaskPage />} />

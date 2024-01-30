@@ -1,44 +1,69 @@
-/* Global */
-.profile-container {
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Containers */
+.title-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  height: 100vh;
+  font-family: 'Rubik', sans-serif;
+  padding: 0 1em;
+}
+
+.logo-image {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
 }
 
 .profile-card {
-  width: fit-content;
+  width: 100%;
   height: fit-content;
-  min-width: 450px;
-  min-height: 850px;
-  text-align: right;
-  
+  min-height: 610px;
+  max-width: 100%;
+  text-align: center;
 }
 
-.profile-card h5,
-.profile-card p,
-.profile-card button {
-  font-size: 1.1em; 
+/* Mui Features*/
+.profile-card .MuiButton-root {
+  font-size: 1.3em;
+  gap: 0.2em;
 }
 
 .profile-card .MuiCardActions-root {
   display: flex;
   flex-direction: column;
-  align-items: center; 
 }
 
-.profile-card input {
-  width: 100%;
-  font-size: 1.1em; 
-  padding: 8px; 
-  text-align: right;
-  box-sizing: border-box;
+.profile-card .MuiTextField-root {
+  margin-bottom: 15px;
 }
 
-/* Contect Cards Components */
+.profile-card .MuiTextField-root input {
+  font-size: 20px;
+}
 
-.profile-avatar {
+/* Specific Components */
+
+#profile-avatar {
   margin: 0 auto 20px;
+  width: 150px;
+  height: 150px;
 }
 
+.delete-confirmation {
+  margin-top: 10px;
+  text-align: center;
+}
 
+.delete-confirmation .buttons {
+  display: flex;
+  justify-content: space-evenly;
+  margin-right: 20px;
+}
+
+.delete-confirmation #message {
+  font-size: 20px;
+}

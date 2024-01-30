@@ -11,6 +11,7 @@ import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
+import {addUserToFirestore} from "../middleware/firestore/users/index.js";
 
 function SignUpCard() {
   const [firstName, setFirstName] = useState("");
@@ -21,12 +22,22 @@ function SignUpCard() {
   const [userType, setUserType] = useState(2);
   const [password, setPassword] = useState("");
 
-
   const registerUser = async () => {
-    const userCredentials = await craeteNewUserWithEmailAndPassword(email,password);
+    const userCredentials = await craeteNewUserWithEmailAndPassword(
+      email,
+      password
+    );
+    if (userCredentials)
+      await addUserToFirestore({
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        userType,
+      }, userCredentials?.user?.uid);
     console.log(userCredentials);
-  }
-  
+  };
+
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
   };
@@ -42,7 +53,7 @@ function SignUpCard() {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValidEmail = emailRegex.test(inputEmail);
-      
+
     // Update email error state
     setEmailError(!isValidEmail);
   };

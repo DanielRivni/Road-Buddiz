@@ -1,23 +1,24 @@
 import React from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
 import {
-  DeleteConfirmation, getAvatarStyle, EditButtons, EditProfileButton, EditAccountButton,
+  DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons,
   LogoutButton, DeleteButton
 } from "../components/Profile";
 import useProfileLogic from '../hooks/useProfileLogic';
-import "../styles/VolunteerProfile.css";
+import "../styles/Profile.css";
 import logo from '../images/Logo.png';
 
-const VolunteerProfile = () => {
+const VolunteerProfile  = () => {
 
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = useProfileLogic();
+  const accountErrors = {email: rest.emailError}
   const fullName = `${rest.firstname} ${rest.lastname}`;
 
   return (
     <>
       {/* Title */}
-      <div className="title-container" >
+      <div className="title-container">
         <h1 id="title" style={{ color: "#ffa70f" }}>
           פרופיל מתנדב
         </h1>
@@ -26,7 +27,7 @@ const VolunteerProfile = () => {
 
       {/* Page Content */}
       <div className="cards-container">
-        <Card className="profile-card" >
+        <Card className="profile-card" style = {{minHeight: '720px'}}>
 
           {/* Profile Content*/}
           <CardContent >
@@ -36,15 +37,15 @@ const VolunteerProfile = () => {
             </Avatar>
             {rest.editingProfile ? (
               <Box
-              component="form"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',  // Set the direction to column
-                alignItems: 'center',     // Center horizontally
-                justifyContent: 'center', // Center vertically
-                '& > :not(style)': { m: 1, width: '30ch' },
-              }}
-            >
+                component="form"
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',  // Set the direction to column
+                  alignItems: 'center',     // Center horizontally
+                  justifyContent: 'center', // Center vertically
+                  '& > :not(style)': { m: 1, width: '30ch' },
+                }}
+              >
                 <TextField
                   variant="outlined"
                   placeholder="שם פרטי"
@@ -66,11 +67,11 @@ const VolunteerProfile = () => {
 
               </Box>
             ) : (
-              <div>
+              <Box>
                 <Typography variant="h4" component="div" gutterBottom style={{ fontWeight: 'bold', textAlign: 'center' }}>
                   {fullName}
                 </Typography>
-                <Typography variant="h5" component="div" gutterBottom >
+                <Typography variant="h5" component="div" gutterBottom>
                   טלפון: {rest.phone}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
@@ -82,13 +83,13 @@ const VolunteerProfile = () => {
                 <Typography variant="h5" component="div" gutterBottom >
                   מספר מתנדב:
                 </Typography>
-              </div>
+              </Box>
             )}
           </CardContent>
 
           {/* Buttons */}
           <CardActions>
-            {rest.editingProfile && <EditButtons handleSaveClick={rest.handleSaveClick} handleCancelClick={rest.handleCancelClick} />}
+            {rest.editingProfile && <ProfileEditButtons handleSaveClick={rest.handleSaveClick} handleCancelClick={rest.handleCancelClick} />}
             {!rest.editingProfile && <EditProfileButton onClick={rest.handleEditClick} />}
           </CardActions>
 
@@ -98,10 +99,12 @@ const VolunteerProfile = () => {
               <div>
                 <div>
                   <TextField
+                    error={rest.emailError}
+                    helperText={rest.emailError ? "אימייל לא תקין" : ""}
                     variant="outlined"
                     placeholder="אימייל"
                     value={rest.editedUsername}
-                    onChange={(e) => rest.setEditedUsername(e.target.value)}
+                    onChange={rest.handleUsernameChange}
                   ></TextField>
                 </div>
                 <div>
@@ -133,7 +136,12 @@ const VolunteerProfile = () => {
               {shouldRenderButtons() && <LogoutButton />}
               {shouldRenderButtons() && <DeleteButton onClick={() => rest.setDeleteConfirmation(true)} />}
             </div>
-            {rest.editingAccount && <EditButtons handleSaveClick={rest.handleSaveAccountClick} handleCancelClick={rest.handleCancelAccountClick} scrollToBottom={true}/>}
+            {rest.editingAccount &&
+              <AccountEditButtons
+                handleSaveClick={rest.handleSaveAccountClick}
+                handleCancelClick={rest.handleCancelAccountClick}
+                errors={accountErrors} 
+              />}
             {rest.deleteConfirmation && <DeleteConfirmation confirmDelete={rest.confirmDelete} closeDeleteConfirmation={rest.closeDeleteConfirmation} />}
           </CardActions>
 

@@ -1,17 +1,18 @@
 import React from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
 import {
-  DeleteConfirmation, getAvatarStyle, EditButtons, EditProfileButton, EditAccountButton,
+  DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons,
   LogoutButton, DeleteButton
 } from "../components/Profile";
 import useProfileLogic from '../hooks/useProfileLogic';
-import "../styles/ClientProfile.css";
+import "../styles/Profile.css";
 import logo from '../images/Logo.png';
 
 const ClientProfile = () => {
 
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = useProfileLogic();
+  const accountErrors = {email: rest.emailError}
   const fullName = `${rest.firstname} ${rest.lastname}`;
 
   return (
@@ -26,7 +27,7 @@ const ClientProfile = () => {
 
       {/* Page Content */}
       <div className="cards-container">
-        <Card className="profile-card" >
+        <Card className="profile-card" style = {{minHeight: '610px'}}>
 
           {/* Profile Content*/}
           <CardContent >
@@ -79,7 +80,7 @@ const ClientProfile = () => {
 
           {/* Buttons */}
           <CardActions>
-            {rest.editingProfile && <EditButtons handleSaveClick={rest.handleSaveClick} handleCancelClick={rest.handleCancelClick} />}
+            {rest.editingProfile && <ProfileEditButtons handleSaveClick={rest.handleSaveClick} handleCancelClick={rest.handleCancelClick} />}
             {!rest.editingProfile && <EditProfileButton onClick={rest.handleEditClick} />}
           </CardActions>
 
@@ -89,10 +90,12 @@ const ClientProfile = () => {
               <div>
                 <div>
                   <TextField
+                    error={rest.emailError}
+                    helperText={rest.emailError ? "אימייל לא תקין" : ""}
                     variant="outlined"
                     placeholder="אימייל"
                     value={rest.editedUsername}
-                    onChange={(e) => rest.setEditedUsername(e.target.value)}
+                    onChange={rest.handleUsernameChange}
                   ></TextField>
                 </div>
                 <div>
@@ -124,7 +127,12 @@ const ClientProfile = () => {
               {shouldRenderButtons() && <LogoutButton />}
               {shouldRenderButtons() && <DeleteButton onClick={() => rest.setDeleteConfirmation(true)} />}
             </div>
-            {rest.editingAccount && <EditButtons handleSaveClick={rest.handleSaveAccountClick} handleCancelClick={rest.handleCancelAccountClick} scrollToBottom={true} />}
+            {rest.editingAccount &&
+              <AccountEditButtons
+                handleSaveClick={rest.handleSaveAccountClick}
+                handleCancelClick={rest.handleCancelAccountClick}
+                errors={accountErrors} 
+              />}
             {rest.deleteConfirmation && <DeleteConfirmation confirmDelete={rest.confirmDelete} closeDeleteConfirmation={rest.closeDeleteConfirmation} />}
           </CardActions>
 

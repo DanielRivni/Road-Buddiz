@@ -21,7 +21,6 @@ body {
 .profile-card {
   width: 100%;
   height: fit-content;
-  min-height: 610px;
   max-width: 100%;
   text-align: center;
 }

@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 const DeleteConfirmation = ({ confirmDelete, closeDeleteConfirmation }) => {
-  
+
   useEffect(() => {
     // Scroll to the bottom of the page when appears
     window.scrollTo({
@@ -13,21 +13,27 @@ const DeleteConfirmation = ({ confirmDelete, closeDeleteConfirmation }) => {
       behavior: 'smooth',
     });
   }, []);
-  
+
 
   return (
     <div className="delete-confirmation">
-      <Typography id="message" variant="body1">
+      <Typography id="message" variant="body1" marginBottom={2}>
         האם את/ה בטוח/ה שברצונך למחוק את החשבון שלך?
       </Typography>
       <div className="buttons">
         <Button
-          style={{ color: 'red' }}
+          variant="contained"
+          color="primary"
+          size="small"
+          style={{ backgroundColor: 'red', color: 'white' }}
           onClick={confirmDelete}
         >
           מחק
         </Button>
         <Button
+          variant="contained"
+          color="primary"
+          size="small"
           onClick={closeDeleteConfirmation}
         >
           בטל
@@ -59,18 +65,7 @@ function stringToColor(string) {
 
 const getAvatarStyle = (fullName) => ({ bgcolor: stringToColor(fullName) });
 
-
-const EditButtons = ({ handleSaveClick, handleCancelClick, scrollToBottom = false}) => {
-  // Conditionally apply useEffect based on scrollToBottom value
-  useEffect(() => {
-    if (scrollToBottom) {
-      // Scroll to the bottom of the page when the component appears
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
-  }, [scrollToBottom]); // Include scrollToBottom in the dependency array
+const ProfileEditButtons = ({ handleSaveClick, handleCancelClick }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', gap: '50px' }}>
@@ -86,6 +81,56 @@ const EditButtons = ({ handleSaveClick, handleCancelClick, scrollToBottom = fals
         color="primary"
         size="small"
         onClick={handleCancelClick}>
+        בטל
+      </Button>
+    </div>
+  );
+};
+
+const AccountEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
+  
+  const [buttonStyle, setButtonStyle] = useState({
+    backgroundColor: '',
+    color: 'primary',
+  });
+
+  const anyErrors = Object.values(errors).some(error => error);
+
+  useEffect(() => {
+    // Scroll to the bottom of the page when the component appears
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth',
+    });
+
+  }, []);
+
+  useEffect(() => {
+    // Update styles when anyErrors changes
+    setButtonStyle({
+      backgroundColor: anyErrors ? 'gray' : '',
+      color: anyErrors ? 'white' : 'primary',
+    });
+  }, [anyErrors]);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row', gap: '50px' }}>
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={handleSaveClick}
+        style={buttonStyle}
+        disabled={anyErrors}
+        >
+        שמור
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={handleCancelClick}
+        >
         בטל
       </Button>
     </div>
@@ -143,9 +188,10 @@ export {
   DeleteConfirmation,
   stringToColor,
   getAvatarStyle,
-  EditButtons,
   EditProfileButton,
   EditAccountButton,
+  ProfileEditButtons,
+  AccountEditButtons,
   LogoutButton,
   DeleteButton,
 };

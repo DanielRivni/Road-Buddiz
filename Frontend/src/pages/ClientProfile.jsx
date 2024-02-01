@@ -4,11 +4,12 @@ import {
   DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons,
   LogoutButton, DeleteButton
 } from "../components/Profile";
+import {ClientMenuList} from '../components/menu';
 import useProfileLogic from '../hooks/useProfileLogic';
 import "../styles/Profile.css";
-import logo from '../images/Logo.png';
 
-const ClientProfile = () => {
+
+export default function ClientProfile () {
 
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = useProfileLogic();
@@ -22,7 +23,7 @@ const ClientProfile = () => {
         <h1 id="title" style={{ color: "#ffa70f" }}>
           פרופיל לקוח
         </h1>
-        <img src={logo} alt="Logo" className="logo-image" />
+        <ClientMenuList />
       </div>
 
       {/* Page Content */}
@@ -141,5 +142,3 @@ const ClientProfile = () => {
     </>
   );
 }
-
-export default ClientProfile;

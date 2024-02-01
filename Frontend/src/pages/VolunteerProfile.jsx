@@ -4,9 +4,9 @@ import {
   DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons,
   LogoutButton, DeleteButton
 } from "../components/Profile";
+import {VolunteerMenuList} from '../components/menu';
 import useProfileLogic from '../hooks/useProfileLogic';
 import "../styles/Profile.css";
-import logo from '../images/Logo.png';
 
 const VolunteerProfile  = () => {
 
@@ -22,7 +22,7 @@ const VolunteerProfile  = () => {
         <h1 id="title" style={{ color: "#ffa70f" }}>
           פרופיל מתנדב
         </h1>
-        <img src={logo} alt="Logo" className="logo-image" />
+        <VolunteerMenuList />
       </div>
 
       {/* Page Content */}

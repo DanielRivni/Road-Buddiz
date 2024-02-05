@@ -9,8 +9,10 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { signInUserWithEmailAndPassword } from "../middleware/auth";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 function SignInCard() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
@@ -20,7 +22,10 @@ function SignInCard() {
       email,
       password
     );
-    if (userCredentials) console.log(userCredentials);
+    if (userCredentials) {
+      console.log(userCredentials);
+      navigate('/ClientProfile', { replace: true , state: { id: userCredentials.user.uid } });
+    }
     else console.error("User Not Found");
   };
 

@@ -4,7 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { useNavigate } from 'react-router-dom';
 
-const ClientMenuList = () => {
+const ClientMenuList = (uid) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const navigate = useNavigate();
@@ -32,12 +32,12 @@ const ClientMenuList = () => {
 
     const handleIssuesClick = () => {
         // Use navigate to go to '/RequestsPage' when the history menu item is clicked
-        navigate('/RequestsPage');
+        navigate('/RequestsPage', { replace: true, state: { id: uid } });
         setOpen(false); // Close the menu
     };
 
     const handleProfileClick = () => {
-        navigate('/ClientProfile');
+        navigate('/ClientProfile', { replace: true, state: { id: uid } });
         setOpen(false);
     };
 

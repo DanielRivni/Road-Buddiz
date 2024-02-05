@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-const useProfileLogic = () => {
+const profileHook = () => {
   ///// Profile Details /////
-  const [firstname, setFirstname] = useState("שם פרטי");
+  const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [phone, setPhone] = useState("");
   const [editingProfile, setEditingProfile] = useState(false);
@@ -81,6 +81,14 @@ const useProfileLogic = () => {
     setEditingAccount(false);
   }
 
+  const initProfile = (firstname, lastname, phone, username) => {
+    console.log('initProfile', firstname, lastname, phone, username);
+    setFirstname(firstname);
+    setLastname(lastname);
+    setPhone(phone);
+    setUsername(username);
+  }
+
   return {
     firstname,
     lastname,
@@ -96,6 +104,7 @@ const useProfileLogic = () => {
     editedPassword,
     editingAccount,
     deleteConfirmation,
+    initProfile,
     confirmDelete,
     closeDeleteConfirmation,
     setDeleteConfirmation,
@@ -114,4 +123,4 @@ const useProfileLogic = () => {
   };
 };
 
-export default useProfileLogic;
+export default profileHook;

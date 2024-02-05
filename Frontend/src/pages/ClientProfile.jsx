@@ -1,20 +1,48 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
-import {
-  DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons,
-  LogoutButton, DeleteButton
-} from "../components/Profile";
-import {ClientMenuList} from '../components/menu';
-import useProfileLogic from '../hooks/useProfileLogic';
+import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
+  AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
+import { ClientMenuList } from '../components/menu';
+import profileHook from '../hooks/profileStates.js';
+import { useLocation } from 'react-router-dom';
+import { readFirestoreDocument } from "../middleware/firestore";
 import "../styles/Profile.css";
 
 
-export default function ClientProfile () {
+export default function ClientProfile() {
 
+  const uid = useLocation().state.id;
+  const collection = "users";
+  const { ...rest } = profileHook();
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
-  const { ...rest } = useProfileLogic();
-  const accountErrors = {email: rest.emailError}
+  const accountErrors = { email: rest.emailError }
   const fullName = `${rest.firstname} ${rest.lastname}`;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userDocument = await readFirestoreDocument(collection, uid);
+        if (!userDocument) {
+          console.log("User not found!");
+          return;
+        }
+
+        const { firstName, lastName, phoneNumber, email } = userDocument;
+
+        if (firstName === undefined | lastName === undefined | phoneNumber === undefined | email === undefined) {
+          console.error("User data is missing fields or incorrect named fields");
+          return;
+        }
+
+        rest.initProfile(firstName, lastName, phoneNumber, email);
+
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
 
   return (
     <>
@@ -23,12 +51,12 @@ export default function ClientProfile () {
         <h1 id="title" style={{ color: "#ffa70f" }}>
           פרופיל לקוח
         </h1>
-        <ClientMenuList />
+        <ClientMenuList uid={uid}/>
       </div>
 
       {/* Page Content */}
       <div className="cards-container">
-        <Card className="profile-card" style = {{minHeight: '610px'}}>
+        <Card className="profile-card" style={{ minHeight: '610px' }}>
 
           {/* Profile Content*/}
           <CardContent >
@@ -132,7 +160,7 @@ export default function ClientProfile () {
               <AccountEditButtons
                 handleSaveClick={rest.handleSaveAccountClick}
                 handleCancelClick={rest.handleCancelAccountClick}
-                errors={accountErrors} 
+                errors={accountErrors}
               />}
             {rest.deleteConfirmation && <DeleteConfirmation confirmDelete={rest.confirmDelete} closeDeleteConfirmation={rest.closeDeleteConfirmation} />}
           </CardActions>

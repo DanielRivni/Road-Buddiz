@@ -1,17 +1,15 @@
 import React from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
-import {
-  DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons,
-  LogoutButton, DeleteButton
-} from "../components/Profile";
-import {VolunteerMenuList} from '../components/menu';
-import useProfileLogic from '../hooks/useProfileLogic';
+import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
+  AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
+import { VolunteerMenuList } from '../components/menu';
+import profileHook from '../hooks/profileStates.js';
 import "../styles/Profile.css";
 
 const VolunteerProfile  = () => {
 
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
-  const { ...rest } = useProfileLogic();
+  const { ...rest } = profileHook();
   const accountErrors = {email: rest.emailError}
   const fullName = `${rest.firstname} ${rest.lastname}`;
 

@@ -7,29 +7,33 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { useState, useEffect } from "react";
+import { listenToRelevantRequests } from "../middleware/firestore/requests/index.js";
+import { getUserRole } from "../middleware/firestore/users/index.js";
+import { getCurrentUser } from "../middleware/auth/index.js";
 
-
-function createData(date, problem, volname, description) {
-    return { date, problem, volname, description };
-  }
-  
-  const rows = [
-    createData("2.7.23", "סיוע בכבלים", "משה כהן", "סיוע בכבלים"),
-    createData("7.7.23", "החלפת גלגל", "משה כהן", "החלפת גלגל"),
-    createData("15.7.23", "חילוץ ופתיחת רכב", "משה כהן", "חילוץ ופתיחת רכב"),
-    createData("23.7.23", "החלפת גלגל", "משה כהן", "החלפת גלגל"),
-    createData("2.8.23", "סיוע בכבלים", "משה כהן", "סיוע בכבלים"),
-    createData("14.8.23", "חילוץ ופתיחת רכב", "משה כהן", "חילוץ ופתיחת רכב"),
-    createData("1.9.23", "סיוע בכבלים", "משה כהן", "סיוע בכבלים"),
-    createData("14.9.23", "החלפת גלגל", "משה כהן", "החלפת גלגל"),
-    createData("23.11.23", "חילוץ ממעלית", "משה כהן", "חילוץ ממעלית"),
-    createData("12.12.23", "סיוע בכבלים", "משה כהן", "סיוע בכבלים"),
-    createData("1.1.24", "חילוץ ופתיחת רכב", "משה כהן", "חילוץ ופתיחת רכב"),
-    createData("10.1.24", "חילוץ ממעלית", "משה כהן", "חילוץ ממעלית"),
-    createData("22.1.24", "דלק שמן ומים", "משה כהן", "דלק שמן ומים"),
-  ];
-  
 function RequestsPageTable() {
+  const [uid, setUid] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const currentUser = await getCurrentUser();
+      const userRole = currentUser.uid
+        ? await getUserRole(currentUser.uid)
+        : null;
+      currentUser.uid && setUid(currentUser.uid);
+      userRole && setUserType(userRole);
+      if (!currentUser.uid || !userRole) return;
+      listenToRelevantRequests(
+        currentUser.uid,
+        userRole,
+        setRows
+      );
+    })();
+  }, []);
+
   return (
     <>
       <div id="requests-page-content">
@@ -57,7 +61,7 @@ function RequestsPageTable() {
                 >
                   <TableCell align="right">{row.date}</TableCell>
                   <TableCell align="right">{row.problem}</TableCell>
-                  <TableCell align="right">{row.volname}</TableCell>
+                  <TableCell align="right">{row.volName}</TableCell>
                   <TableCell align="right">{row.description}</TableCell>
                 </TableRow>
               ))}

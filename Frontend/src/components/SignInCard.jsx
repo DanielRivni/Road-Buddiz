@@ -9,24 +9,41 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { signInUserWithEmailAndPassword } from "../middleware/auth";
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { getUserRole } from "../middleware/firestore/users/index.js";
+import { useNavigate } from "react-router-dom";
 
 function SignInCard() {
-  const navigate = useNavigate();
+  const redirect = new useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
 
+  const [formError, setFormError] = useState(false);
+
   const signInUser = async () => {
+    // Check if email or password is empty
+    if (!email || !password) {
+      setFormError(true);
+      return;
+    }
     const userCredentials = await signInUserWithEmailAndPassword(
       email,
       password
     );
     if (userCredentials) {
-      console.log(userCredentials);
-      navigate('/ClientProfile', { replace: true , state: { id: userCredentials.user.uid } });
-    }
-    else console.error("User Not Found");
+      const userRole = await getUserRole(userCredentials.user.uid);
+      switch (userRole) {
+        case 1:
+          redirect("/VolunteerTaskPage");
+          break;
+        case 2:
+          redirect("/RequestsPage");
+          break;
+        default:
+          redirect("/");
+          break;
+      }
+    } else console.error("User Not Found");
   };
 
   const handleEmailChange = (event) => {
@@ -36,7 +53,7 @@ function SignInCard() {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValidEmail = emailRegex.test(inputEmail);
-      
+
     // Update email error state
     setEmailError(!isValidEmail);
   };
@@ -61,8 +78,14 @@ function SignInCard() {
             <div id="home-page-inputs-container" className="center-div-column">
               <TextField
                 id="email-error"
-                error={emailError} // Use email error state
-                helperText={emailError ? "אימייל לא תקין" : ""} // Show error message if email is invalid
+                error={formError && !email} // Check formError and email state
+                helperText={
+                  formError && !email
+                    ? "שדה חובה"
+                    : emailError
+                    ? "אימייל לא תקין"
+                    : ""
+                }
                 className="home-page-inputs"
                 variant="outlined"
                 placeholder="אימייל או מספר טלפון"
@@ -73,6 +96,8 @@ function SignInCard() {
                 variant="outlined"
                 type="password"
                 placeholder="סיסמה"
+                error={formError && !password} // Check formError and password state
+                helperText={formError && !password ? "שדה חובה" : ""}
                 onChange={handlePasswordChange}
               ></TextField>
             </div>

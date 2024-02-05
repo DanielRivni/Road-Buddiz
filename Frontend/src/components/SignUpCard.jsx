@@ -8,12 +8,16 @@ import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { useState } from "react";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import MenuItem from "@mui/material/MenuItem";
+import { useState } from "react";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
-import {addUserToFirestore} from "../middleware/firestore/users/index.js";
+import { addUserToFirestore } from "../middleware/firestore/users/index.js";
+import { useNavigate } from "react-router-dom";
 
 function SignUpCard() {
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,21 +25,65 @@ function SignUpCard() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [userType, setUserType] = useState(2);
   const [password, setPassword] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    phoneNumber: false,
+    userType: false,
+    password: false,
+  });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const registerUser = async () => {
-    const userCredentials = await craeteNewUserWithEmailAndPassword(
+    const fields = {
+      firstName,
+      lastName,
       email,
-      password
-    );
-    if (userCredentials)
-      await addUserToFirestore({
-        firstName,
-        lastName,
+      phoneNumber,
+      userType,
+      password,
+    };
+    const errors = Object.entries(fields).reduce((acc, [key, value]) => {
+      if (!value) acc[key] = true;
+      return acc;
+    }, {});
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    try {
+      const userCredentials = await craeteNewUserWithEmailAndPassword(
         email,
-        phoneNumber,
-        userType,
-      }, userCredentials?.user?.uid);
-    console.log(userCredentials);
+        password
+      );
+      if (userCredentials) {
+        const added = await addUserToFirestore(
+          {
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            userType,
+          },
+          userCredentials?.user?.uid
+        );
+        if (added) navigate("/");
+      }
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        setSnackbarMessage("This email is already in use.");
+      } else {
+        setSnackbarMessage("User registration failed. Please try again later.");
+      }
+      setOpenSnackbar(true);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
   const handleFirstNameChange = (event) => {
@@ -92,6 +140,8 @@ function SignUpCard() {
                 variant="outlined"
                 placeholder="שם פרטי"
                 value={firstName}
+                error={formErrors.firstName}
+                helperText={formErrors.firstName ? "שדה חובה" : ""}
                 onChange={handleFirstNameChange}
               ></TextField>
               <TextField
@@ -103,8 +153,14 @@ function SignUpCard() {
               ></TextField>
               <TextField
                 id="email-error"
-                error={emailError} // Use email error state
-                helperText={emailError ? "אימייל לא תקין" : ""} // Show error message if email is invalid
+                error={formErrors.email || emailError}
+                helperText={
+                  formErrors.email
+                    ? "שדה חובה"
+                    : emailError
+                    ? "אימייל לא תקין"
+                    : ""
+                }
                 className="signup-page-inputs"
                 variant="outlined"
                 placeholder="אימייל"
@@ -116,13 +172,15 @@ function SignUpCard() {
                 variant="outlined"
                 placeholder="מספר טלפון"
                 value={phoneNumber}
+                error={formErrors.phoneNumber}
+                helperText={formErrors.phoneNumber ? "שדה חובה" : ""}
                 onChange={handlePhoneNumberChange}
-                //                type="number"
               ></TextField>
               <Select
                 className="signup-page-inputs"
                 variant="outlined"
                 value={userType}
+                error={formErrors.userType}
                 onChange={handleUserTypeChange}
               >
                 <MenuItem value={1}>מתנדב</MenuItem>
@@ -135,6 +193,8 @@ function SignUpCard() {
               type="password"
               placeholder="סיסמה"
               value={password}
+              error={formErrors.password}
+              helperText={formErrors.password ? "שדה חובה" : ""}
               onChange={handlePasswordChange}
             ></TextField>
           </CardContent>
@@ -172,6 +232,20 @@ function SignUpCard() {
           </CardActions>
         </Card>
       </div>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

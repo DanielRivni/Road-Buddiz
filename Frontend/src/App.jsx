@@ -3,9 +3,16 @@ import HomePage from "./pages/HomePage.jsx";
 import ClientProfile from "./pages/ClientProfile.jsx";
 import VolunteerProfile from "./pages/VolunteerProfile.jsx";
 import RequestsPage from "./pages/RequestsPage.jsx";
-// import OpenRequestPage from './pages/OpenRequestPage.jsx'
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import VolunteerTaskPage from "./pages/VolunteerTaskPage.jsx";
+import VolunteerChosenTasks from "./pages/VolunteerChosenTasks.jsx";
+import { getUserRole } from "./middleware/firestore/users/index.js";
+import { getCurrentUser } from "./middleware/auth/index.js";
 
 function App() {
   return (
@@ -18,7 +25,6 @@ function App() {
           <Route path="/SignUpPage" element={<SignUpPage />} />
           <Route path="/RequestsPage" element={<RequestsPage />} />
           <Route path="/VolunteerTaskPage" element={<VolunteerTaskPage />} />
-          {/* <Route path="/OpenRequestPage" element={<OpenRequestPage />} /> */}
         </Routes>
       </div>
     </Router>

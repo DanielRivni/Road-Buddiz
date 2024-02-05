@@ -6,7 +6,10 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  getDocs,
   onSnapshot,
+  query,
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -75,5 +78,48 @@ export const deleteFirestoreDocument = async (collectionPath, documentId) => {
     await deleteDoc(doc(db, collectionPath, documentId));
   } catch (error) {
     console.error(error);
+  }
+};
+
+// Query
+export const getDocumentsByQuery = async (collectionPath, queryObj) => {
+  try {
+    const collectionRef = collection(db, collectionPath);
+    const q = query(
+      collectionRef,
+      where(queryObj.fieldName, queryObj.operation, queryObj.value)
+    );
+    const querySnapshot = await getDocs(q);
+    const docsData = [];
+    querySnapshot.forEach((doc) => {
+      docsData.push(doc.data());
+    });
+    return docsData;
+  } catch (error) {
+    console.error("getDocumentsByQuery Failed", error);
+  }
+};
+
+// Query - Real-Time
+export const listenToDocumentsByQueryRealTime = (
+  collectionPath,
+  queryObj,
+  callback
+) => {
+  try {
+    const collectionRef = collection(db, collectionPath);
+    const q = query(
+      collectionRef,
+      where(queryObj.fieldName, queryObj.operation, queryObj.value)
+    );
+    onSnapshot(q, (querySnapshot) => {
+      const docsData = [];
+      querySnapshot.forEach((doc) => {
+        docsData.push(doc.data());
+      });
+      callback(docsData);
+    });
+  } catch (error) {
+    console.error("listenToDocumentsByQueryRealTime Failed", error);
   }
 };

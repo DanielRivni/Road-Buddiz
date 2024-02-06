@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Typography, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import LogoutIcon from '@mui/icons-material/Logout';
 
 const DeleteConfirmation = ({ confirmDelete, closeDeleteConfirmation }) => {
 
@@ -65,15 +64,33 @@ function stringToColor(string) {
 
 const getAvatarStyle = (fullName) => ({ bgcolor: stringToColor(fullName) });
 
-const ProfileEditButtons = ({ handleSaveClick, handleCancelClick }) => {
+const ProfileEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
+
+  const [buttonStyle, setButtonStyle] = useState({
+    backgroundColor: '',
+    color: 'primary',
+  });
+
+  const anyErrors = Object.values(errors).some(error => error);
+
+  useEffect(() => {
+    // Update styles when anyErrors changes
+    setButtonStyle({
+      backgroundColor: anyErrors ? 'gray' : '',
+      color: anyErrors ? 'white' : 'primary',
+    });
+  }, [anyErrors]);
 
   return (
+    
     <div style={{ display: 'flex', flexDirection: 'row', gap: '50px' }}>
       <Button
         variant="contained"
         color="primary"
         size="small"
-        onClick={handleSaveClick}>
+        onClick={handleSaveClick}
+        style={buttonStyle}
+        disabled={anyErrors}>
         שמור
       </Button>
       <Button
@@ -121,8 +138,7 @@ const AccountEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
         size="small"
         onClick={handleSaveClick}
         style={buttonStyle}
-        disabled={anyErrors}
-        >
+        disabled={anyErrors}>
         שמור
       </Button>
       <Button
@@ -161,17 +177,6 @@ const EditAccountButton = ({ onClick }) => (
   </Button>
 );
 
-const LogoutButton = () => (
-  <Button
-    variant="contained"
-    color="primary"
-    size="small"
-  >
-    <LogoutIcon style={{ fontSize: 20 }} />
-    התנתק
-  </Button>
-);
-
 const DeleteButton = ({ onClick }) => (
   <Button
     variant="contained"
@@ -192,6 +197,5 @@ export {
   EditAccountButton,
   ProfileEditButtons,
   AccountEditButtons,
-  LogoutButton,
   DeleteButton,
 };

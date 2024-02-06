@@ -1,19 +1,22 @@
-import React, { useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
-import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
-  AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
+import {
+  DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons,
+  AccountEditButtons, DeleteButton
+} from "../components/Profile";
 import { VolunteerMenuList } from '../components/Menu';
 import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
 import profileHook from '../hooks/profileStates.js';
 import "../styles/Profile.css";
 
-const VolunteerProfile  = () => {
+const VolunteerProfile = () => {
   const { uid } = useLocation().state;
   const collection = "users";
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
-  const { ...rest } = profileHook();
-  const accountErrors = {email: rest.emailError}
+  const { ...rest } = profileHook(uid);
+  const accountErrors = { email: rest.emailError, password: rest.passwordError }
+  const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
   const fullName = `${rest.firstname} ${rest.lastname}`;
 
   useEffect(() => {
@@ -54,7 +57,7 @@ const VolunteerProfile  = () => {
 
       {/* Page Content */}
       <div className="cards-container">
-        <Card className="profile-card" style = {{minHeight: '720px'}}>
+        <Card className="profile-card" style={{ minHeight: '720px' }}>
 
           {/* Profile Content*/}
           <CardContent >
@@ -74,22 +77,28 @@ const VolunteerProfile  = () => {
                 }}
               >
                 <TextField
+                  error={rest.firstnameError}
+                  helperText={rest.firstnameError ? "שם פרטי לא תקין" : ""}
                   variant="outlined"
                   placeholder="שם פרטי"
                   value={rest.editedFirstname}
-                  onChange={(e) => rest.setEditedFirstname(e.target.value)}
+                  onChange={rest.handleFirstnameChange}
                 />
                 <TextField
+                  error={rest.lastnameError}
+                  helperText={rest.lastnameError ? "שם משפחה לא תקין" : ""}
                   variant="outlined"
                   placeholder="שם משפחה"
                   value={rest.editedLastname}
-                  onChange={(e) => rest.setEditedLastname(e.target.value)}
+                  onChange={rest.handleLastnameChange}
                 />
                 <TextField
+                  error={rest.phoneError}
+                  helperText={rest.phoneError ? "אורך טלפון לא תקין" : ""}
                   variant="outlined"
                   placeholder="מס' טלפון"
                   value={rest.editedPhone}
-                  onChange={(e) => rest.setEditedPhone(e.target.value)}
+                  onChange={rest.handlePhoneChange}
                 />
 
               </Box>
@@ -116,7 +125,12 @@ const VolunteerProfile  = () => {
 
           {/* Buttons */}
           <CardActions>
-            {rest.editingProfile && <ProfileEditButtons handleSaveClick={rest.handleSaveClick} handleCancelClick={rest.handleCancelClick} />}
+            {rest.editingProfile &&
+              <ProfileEditButtons
+                handleSaveClick={rest.handleSaveClick}
+                handleCancelClick={rest.handleCancelClick}
+                errors={profileErrors} />
+            }
             {!rest.editingProfile && <EditProfileButton onClick={rest.handleEditClick} />}
           </CardActions>
 
@@ -136,10 +150,12 @@ const VolunteerProfile  = () => {
                 </div>
                 <div>
                   <TextField
+                    error={rest.passwordError}
+                    helperText={rest.passwordError ? "חובה 6 תווים, אות ומספר" : ""}
                     variant="outlined"
                     placeholder="סיסמה"
                     value={rest.editedPassword}
-                    onChange={(e) => rest.setEditedPassword(e.target.value)}
+                    onChange={rest.handlePasswordChange}
                   ></TextField>
                 </div>
               </div>
@@ -148,10 +164,6 @@ const VolunteerProfile  = () => {
                 <Typography variant="h5" component="div" gutterBottom>
                   אימייל: {rest.username}
                 </Typography>
-                <Typography variant="h5" component="div" gutterBottom>
-                  סיסמה: {'*'.repeat(rest.password.length)}
-                </Typography>
-
               </div>
             )}
           </CardContent>
@@ -160,18 +172,16 @@ const VolunteerProfile  = () => {
           <CardActions>
             <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
               {shouldRenderButtons() && <EditAccountButton onClick={rest.handleEditAccountClick} />}
-              {shouldRenderButtons() && <LogoutButton />}
               {shouldRenderButtons() && <DeleteButton onClick={() => rest.setDeleteConfirmation(true)} />}
             </div>
             {rest.editingAccount &&
               <AccountEditButtons
                 handleSaveClick={rest.handleSaveAccountClick}
                 handleCancelClick={rest.handleCancelAccountClick}
-                errors={accountErrors} 
+                errors={accountErrors}
               />}
             {rest.deleteConfirmation && <DeleteConfirmation confirmDelete={rest.confirmDelete} closeDeleteConfirmation={rest.closeDeleteConfirmation} />}
           </CardActions>
-
         </Card >
       </div >
     </>

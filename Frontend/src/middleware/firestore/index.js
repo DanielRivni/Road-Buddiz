@@ -72,6 +72,28 @@ export const updateFirestoreDocument = async (
   }
 };
 
+export const updateDocumentField = async (
+  collectionPath,
+  documentId,
+  data
+) => {
+  try {
+    // Check if document exists
+    const documentSnapshot = await getDoc(doc(db, collectionPath, documentId));
+    if (documentSnapshot.exists()) {
+      // Document exists, update specific fields
+      await updateDoc(doc(db, collectionPath, documentId), data);
+    } else {
+      // Throw error if document does not exist
+      throw new Error("Trying to update document that does not exist");
+    }
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
 // Delete
 export const deleteFirestoreDocument = async (collectionPath, documentId) => {
   try {

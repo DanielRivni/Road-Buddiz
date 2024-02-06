@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
-import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
-  AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
+import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons,
+  AccountEditButtons, DeleteButton } from "../components/Profile";
 import { ClientMenuList } from '../components/Menu';
 import profileHook from '../hooks/profileStates.js';
 import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
 import "../styles/Profile.css";
 
-
 export default function ClientProfile() {
   const { uid } = useLocation().state;
-  const { ...rest } = profileHook();
+  const { ...rest } = profileHook(uid);
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
-  const accountErrors = { email: rest.emailError }
+  const accountErrors = { email: rest.emailError, password: rest.passwordError }
+  const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
   const fullName = `${rest.firstname} ${rest.lastname}`;
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function ClientProfile() {
         <h1 id="title" style={{ color: "#ffa70f" }}>
           פרופיל לקוח
         </h1>
-        <ClientMenuList uid={uid}/>
+        <ClientMenuList uid={uid} />
       </div>
 
       {/* Page Content */}
@@ -67,29 +67,35 @@ export default function ClientProfile() {
                 component="form"
                 sx={{
                   display: 'flex',
-                  flexDirection: 'column',  // Set the direction to column
-                  alignItems: 'center',     // Center horizontally
-                  justifyContent: 'center', // Center vertically
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   '& > :not(style)': { m: 1, width: '30ch' },
                 }}
               >
                 <TextField
+                  error={rest.firstnameError}
+                  helperText={rest.firstnameError ? "שם פרטי לא תקין" : ""}
                   variant="outlined"
                   placeholder="שם פרטי"
                   value={rest.editedFirstname}
-                  onChange={(e) => rest.setEditedFirstname(e.target.value)}
+                  onChange={rest.handleFirstnameChange}
                 />
                 <TextField
+                  error={rest.lastnameError}
+                  helperText={rest.lastnameError ? "שם משפחה לא תקין" : ""}
                   variant="outlined"
                   placeholder="שם משפחה"
                   value={rest.editedLastname}
-                  onChange={(e) => rest.setEditedLastname(e.target.value)}
+                  onChange={rest.handleLastnameChange}
                 />
                 <TextField
+                  error={rest.phoneError}
+                  helperText={rest.phoneError ? "אורך טלפון לא תקין" : ""}
                   variant="outlined"
                   placeholder="מס' טלפון"
                   value={rest.editedPhone}
-                  onChange={(e) => rest.setEditedPhone(e.target.value)}
+                  onChange={rest.handlePhoneChange}
                 />
 
               </Box>
@@ -107,8 +113,15 @@ export default function ClientProfile() {
 
           {/* Buttons */}
           <CardActions>
-            {rest.editingProfile && <ProfileEditButtons handleSaveClick={rest.handleSaveClick} handleCancelClick={rest.handleCancelClick} />}
-            {!rest.editingProfile && <EditProfileButton onClick={rest.handleEditClick} />}
+            {rest.editingProfile &&
+              <ProfileEditButtons
+                handleSaveClick={rest.handleSaveClick}
+                handleCancelClick={rest.handleCancelClick}
+                errors={profileErrors} />
+            }
+            {!rest.editingProfile &&
+              <EditProfileButton onClick={rest.handleEditClick} />
+            }
           </CardActions>
 
           {/* Account Content */}
@@ -127,10 +140,12 @@ export default function ClientProfile() {
                 </div>
                 <div>
                   <TextField
+                    error={rest.passwordError}
+                    helperText={rest.passwordError ? "חובה 6 תווים, אות ומספר" : ""}
                     variant="outlined"
                     placeholder="סיסמה"
                     value={rest.editedPassword}
-                    onChange={(e) => rest.setEditedPassword(e.target.value)}
+                    onChange={rest.handlePasswordChange}
                   ></TextField>
                 </div>
               </div>
@@ -139,10 +154,6 @@ export default function ClientProfile() {
                 <Typography variant="h5" component="div" gutterBottom>
                   אימייל: {rest.username}
                 </Typography>
-                <Typography variant="h5" component="div" gutterBottom>
-                  סיסמה: {'*'.repeat(rest.password.length)}
-                </Typography>
-
               </div>
             )}
           </CardContent>
@@ -151,7 +162,6 @@ export default function ClientProfile() {
           <CardActions>
             <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
               {shouldRenderButtons() && <EditAccountButton onClick={rest.handleEditAccountClick} />}
-              {shouldRenderButtons() && <LogoutButton />}
               {shouldRenderButtons() && <DeleteButton onClick={() => rest.setDeleteConfirmation(true)} />}
             </div>
             {rest.editingAccount &&

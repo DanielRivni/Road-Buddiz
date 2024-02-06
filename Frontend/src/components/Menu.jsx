@@ -32,12 +32,18 @@ const ClientMenuList = (uid) => {
 
     const handleIssuesClick = () => {
         // Use navigate to go to '/RequestsPage' when the history menu item is clicked
-        navigate('/RequestsPage', { replace: true, state: { id: uid } });
+        navigate('/RequestsPage', { state: { id: uid } });
         setOpen(false); // Close the menu
     };
 
     const handleProfileClick = () => {
-        navigate('/ClientProfile', { replace: true, state: { id: uid } });
+        navigate('/ClientProfile', { state: { id: uid } });
+        setOpen(false);
+    };
+
+    const handleLogoutClick = () => {
+        localStorage.removeItem("loggedInID");
+        navigate('/');
         setOpen(false);
     };
 
@@ -89,6 +95,7 @@ const ClientMenuList = (uid) => {
                                 >
                                     <MenuItem onClick={handleProfileClick} style={{ fontSize: '1.2rem', padding: '16px' }}>פרופיל</MenuItem>
                                     <MenuItem onClick={handleIssuesClick} style={{ fontSize: '1.2rem', padding: '16px' }}>תקלות</MenuItem>
+                                    <MenuItem onClick={handleLogoutClick} style={{ fontSize: '1.2rem', padding: '16px' }}>התנתק</MenuItem>
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>

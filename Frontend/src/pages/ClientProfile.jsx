@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
 import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
   AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
-import { ClientMenuList } from '../components/menu';
+import { ClientMenuList } from '../components/Menu';
 import profileHook from '../hooks/profileStates.js';
 import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
@@ -10,9 +10,7 @@ import "../styles/Profile.css";
 
 
 export default function ClientProfile() {
-
-  const uid = useLocation().state.id;
-  const collection = "users";
+  const { uid } = useLocation().state;
   const { ...rest } = profileHook();
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const accountErrors = { email: rest.emailError }
@@ -21,7 +19,7 @@ export default function ClientProfile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDocument = await readFirestoreDocument(collection, uid);
+        const userDocument = await readFirestoreDocument("users", uid);
         if (!userDocument) {
           console.log("User not found!");
           return;
@@ -42,7 +40,7 @@ export default function ClientProfile() {
     };
 
     fetchUserData();
-  }, [uid]);
+  }, []);
 
   return (
     <>

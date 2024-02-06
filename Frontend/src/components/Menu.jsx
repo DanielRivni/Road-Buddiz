@@ -4,7 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { useNavigate } from 'react-router-dom';
 
-const ClientMenuList = (uid) => {
+const ClientMenuList = ({ uid }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const navigate = useNavigate();
@@ -32,12 +32,12 @@ const ClientMenuList = (uid) => {
 
     const handleIssuesClick = () => {
         // Use navigate to go to '/RequestsPage' when the history menu item is clicked
-        navigate('/RequestsPage', { state: { id: uid } });
+        navigate('/RequestsPage', { state: { uid: uid } });
         setOpen(false); // Close the menu
     };
 
     const handleProfileClick = () => {
-        navigate('/ClientProfile', { state: { id: uid } });
+        navigate('/ClientProfile', { state: { uid: uid } });
         setOpen(false);
     };
 
@@ -106,7 +106,7 @@ const ClientMenuList = (uid) => {
     );
 }
 
-const VolunteerMenuList = (uid) => {
+const VolunteerMenuList = ({ uid }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const navigate = useNavigate();
@@ -134,12 +134,12 @@ const VolunteerMenuList = (uid) => {
 
     const handleIssuesClick = () => {
         // Use navigate to go to '/RequestsPage' when the history menu item is clicked
-        navigate('/VolunteerTaskPage', { replace: true, state: { id: uid } });
+        navigate('/VolunteerTaskPage', { replace: true, state: { uid: uid } });
         setOpen(false); // Close the menu
     };
 
     const handleProfileClick = () => {
-        navigate('/VolunteerProfile', { replace: true, state: { id: uid } });
+        navigate('/VolunteerProfile', { replace: true, state: { uid: uid } });
         setOpen(false);
     };
 

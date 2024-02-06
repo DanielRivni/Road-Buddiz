@@ -2,14 +2,14 @@ import React, { useEffect} from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
 import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
   AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
-import { VolunteerMenuList } from '../components/menu';
+import { VolunteerMenuList } from '../components/Menu';
 import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
 import profileHook from '../hooks/profileStates.js';
 import "../styles/Profile.css";
 
 const VolunteerProfile  = () => {
-  const uid = useLocation().state.id;
+  const { uid } = useLocation().state;
   const collection = "users";
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = profileHook();

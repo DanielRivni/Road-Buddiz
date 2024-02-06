@@ -2,19 +2,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     font-family: 'Rubik', sans-serif;
     padding: 0 1em;
+}
+
+#button-container {
+    display: flex;
+    align-items: center; 
 }
 
 #requests-page-content {
     padding: 1em;
     max-width: 100vw;
 }
-
-/* .menu-icon {
-    display: flex;
-    align-items: center;
-    margin-right: -860px;
-  }
-   */

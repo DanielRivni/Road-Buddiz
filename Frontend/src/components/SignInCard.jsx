@@ -78,9 +78,9 @@ function SignInCard() {
             <div id="home-page-inputs-container" className="center-div-column">
               <TextField
                 id="email-error"
-                error={formError && !email} // Check formError and email state
+                error={emailError || (formError && !email)}
                 helperText={
-                  formError && !email
+                  (formError && !email)
                     ? "שדה חובה"
                     : emailError
                     ? "אימייל לא תקין"

@@ -1,17 +1,46 @@
-import React from 'react';
+import React, { useEffect} from 'react';
 import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
 import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons, 
   AccountEditButtons, LogoutButton, DeleteButton } from "../components/Profile";
 import { VolunteerMenuList } from '../components/menu';
+import { useLocation } from 'react-router-dom';
+import { readFirestoreDocument } from "../middleware/firestore";
 import profileHook from '../hooks/profileStates.js';
 import "../styles/Profile.css";
 
 const VolunteerProfile  = () => {
-
+  const uid = useLocation().state.id;
+  const collection = "users";
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = profileHook();
   const accountErrors = {email: rest.emailError}
   const fullName = `${rest.firstname} ${rest.lastname}`;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userDocument = await readFirestoreDocument(collection, uid);
+        if (!userDocument) {
+          console.log("User not found!");
+          return;
+        }
+
+        const { firstName, lastName, phoneNumber, email } = userDocument;
+
+        if (firstName === undefined | lastName === undefined | phoneNumber === undefined | email === undefined) {
+          console.error("User data is missing fields or incorrect named fields");
+          return;
+        }
+
+        rest.initProfile(firstName, lastName, phoneNumber, email);
+
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
 
   return (
     <>

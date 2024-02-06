@@ -34,10 +34,10 @@ function SignInCard() {
       const userRole = await getUserRole(userCredentials.user.uid);
       switch (userRole) {
         case 1:
-          redirect("/VolunteerTaskPage");
+          redirect("/VolunteerTaskPage", { replace: true, state: { id: userCredentials.user.uid } });
           break;
         case 2:
-          redirect("/RequestsPage");
+          redirect("/RequestsPage", { replace: true, state: { id: userCredentials.user.uid } });
           break;
         default:
           redirect("/");

@@ -99,7 +99,7 @@ const ClientMenuList = (uid) => {
     );
 }
 
-const VolunteerMenuList = () => {
+const VolunteerMenuList = (uid) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const navigate = useNavigate();
@@ -127,12 +127,12 @@ const VolunteerMenuList = () => {
 
     const handleIssuesClick = () => {
         // Use navigate to go to '/RequestsPage' when the history menu item is clicked
-        navigate('/VolunteerTaskPage');
+        navigate('/VolunteerTaskPage', { replace: true, state: { id: uid } });
         setOpen(false); // Close the menu
     };
 
     const handleProfileClick = () => {
-        navigate('/VolunteerProfile');
+        navigate('/VolunteerProfile', { replace: true, state: { id: uid } });
         setOpen(false);
     };
 

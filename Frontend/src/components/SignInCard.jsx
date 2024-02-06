@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { signInUserWithEmailAndPassword } from "../middleware/auth";
-import { readFirestoreDocument } from "../middleware/firestore";
+import { getUserRole } from "../middleware/firestore/users";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,50 +19,57 @@ function SignInCard() {
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState(false);
 
-
   useEffect(() => {
-    const loggedInID = localStorage.getItem("loggedInID") || null;
-    if (loggedInID) {
-      redirectUser(loggedInID);
-    }
+    const fetchData = async () => {
+      try {
+        const userRole = await getUserRole();
+        if (userRole) {
+          redirectUser(userRole);
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    };
+
+    fetchData();
 
   }, []);
 
   const signInUser = async () => {
-    // Check if email or password is empty
-    if (!email || !password) {
-      setFormError(true);
-      return;
+    try {
+      // Check if email or password is empty
+      if (!email || !password) {
+        setFormError(true);
+        return;
+      }
+      
+      const userCredentials = await signInUserWithEmailAndPassword(email, password);
+      if (!userCredentials) {
+        console.error("User Not Found");
+        return;
+      }
+
+      const userRole = await getUserRole(userCredentials.user.uid);
+      if (!userRole) {
+        console.error("User role not found");
+      }
+
+      redirectUser(userRole);
+
+    } catch (error) {
+      console.error("Error signing in:", error);
     }
-    const userCredentials = await signInUserWithEmailAndPassword(email, password);
-    if (!userCredentials) {
-      console.error("User Not Found");
-      return;
-    };
-    const loginUID = userCredentials.user.uid;
-    localStorage.setItem("loggedInID", loginUID);
-    redirectUser(loginUID);
   };
-
-  const redirectUser = async (uid) => {
-    const userDocument = await readFirestoreDocument("users", uid);
-    if (!userDocument) {
-      console.error("User id incorrect!");
-      return;
-    }
-    const { userType } = userDocument;
-    if (userType === undefined) {
-      console.error("User data is missing fields or incorrect named fields");
-      return;
-    }
-
-    //console.log(userType);
+  
+  const redirectUser = (userRole) => {
+    const { userType, loggedInUserID } = userRole;
+  
     switch (userType) {
       case 1:
-        redirect("/VolunteerTaskPage", { replace: true, state: { uid: uid } });
+        redirect("/VolunteerTaskPage", { replace: true, state: { uid: loggedInUserID } });
         break;
       case 2:
-        redirect("/RequestsPage", { replace: true, state: { uid: uid } });
+        redirect("/RequestsPage", { replace: true, state: { uid: loggedInUserID } });
         break;
       default:
         redirect("/");

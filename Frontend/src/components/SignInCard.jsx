@@ -212,7 +212,7 @@ function SignInCard() {
               severity="success"
               sx={{ width: "100%" }}
             >
-              הרשמה בוצעה בהצלחה!
+            <div style={{ marginRight: "10px" ,marginLeft: "10px"}}>הרשמה בוצעה בהצלחה!</div>
             </Alert>
           </Snackbar> 
     </>

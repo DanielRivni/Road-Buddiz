@@ -33,8 +33,7 @@ function SignUpCard() {
     userType: false,
     password: false,
   });
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
 
   const registerUser = async () => {
     const fields = {
@@ -53,8 +52,7 @@ function SignUpCard() {
       setFormErrors(errors);
       return;
     }
-    
-    try {
+
       const userCredentials = await craeteNewUserWithEmailAndPassword(
         email,
         password
@@ -70,20 +68,11 @@ function SignUpCard() {
           },
           userCredentials?.user?.uid
         );
-        if (added) navigate("/");
+        if (added) {
+          setOpenSuccessSnackbar(true);
+          navigate("/", { state: { openSuccessSnackbar: true } });
+        }
       }
-    } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        setSnackbarMessage("This email is already in use.");
-      } else {
-        setSnackbarMessage("User registration failed. Please try again later.");
-      }
-      setOpenSnackbar(true);
-    }
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
 
   const handleFirstNameChange = (event) => {
@@ -107,7 +96,15 @@ function SignUpCard() {
   };
 
   const handlePhoneNumberChange = (event) => {
-    setPhoneNumber(event.target.value);
+    const inputPhoneNumber = event.target.value;
+
+    // Remove any non-digit characters from the input
+    const phoneNumberDigitsOnly = inputPhoneNumber.replace(/\D/g, "");
+
+    // Limit the phone number to 10 digits
+    const limitedPhoneNumber = phoneNumberDigitsOnly.slice(0, 10);
+
+    setPhoneNumber(limitedPhoneNumber);
   };
 
   const handleUserTypeChange = (event) => {
@@ -117,6 +114,21 @@ function SignUpCard() {
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      registerUser();
+    }
+  };
+
+  const handleCloseSuccessSnackbar = (reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSuccessSnackbar(false);
+  };
+
+
 
   return (
     <>
@@ -143,6 +155,7 @@ function SignUpCard() {
                 error={formErrors.firstName}
                 helperText={formErrors.firstName ? "שדה חובה" : ""}
                 onChange={handleFirstNameChange}
+                onKeyDown={handleKeyPress}
               ></TextField>
               <TextField
                 className="signup-page-inputs"
@@ -150,6 +163,7 @@ function SignUpCard() {
                 placeholder="שם משפחה"
                 value={lastName}
                 onChange={handleLastNameChange}
+                onKeyDown={handleKeyPress}
               ></TextField>
               <TextField
                 id="email-error"
@@ -166,6 +180,7 @@ function SignUpCard() {
                 placeholder="אימייל"
                 value={email}
                 onChange={handleEmailChange}
+                onKeyDown={handleKeyPress}
               ></TextField>
               <TextField
                 className="signup-page-inputs"
@@ -175,6 +190,7 @@ function SignUpCard() {
                 error={formErrors.phoneNumber}
                 helperText={formErrors.phoneNumber ? "שדה חובה" : ""}
                 onChange={handlePhoneNumberChange}
+                onKeyDown={handleKeyPress}
               ></TextField>
               <Select
                 className="signup-page-inputs"
@@ -193,9 +209,16 @@ function SignUpCard() {
               type="password"
               placeholder="סיסמה"
               value={password}
-              error={formErrors.password}
-              helperText={formErrors.password ? "שדה חובה" : ""}
+              error={formErrors.password || (password && password.length < 8)}
+              helperText={
+                formErrors.password
+                  ? "שדה חובה"
+                  : password && password.length < 8
+                  ? "הסיסמה חייבת להיות לפחות 8 תווים"
+                  : ""
+              }
               onChange={handlePasswordChange}
+              onKeyDown={handleKeyPress}
             ></TextField>
           </CardContent>
           <CardActions
@@ -230,22 +253,24 @@ function SignUpCard() {
               </div>
             </div>
           </CardActions>
+
         </Card>
       </div>
+
       <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            open={openSuccessSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSuccessSnackbar}
+          >
+            <Alert
+              onClose={handleCloseSuccessSnackbar}
+              severity="success"
+              sx={{ width: "100%" }}
+            >
+              הרשמה בוצעה בהצלחה!
+            </Alert>
+          </Snackbar>      
     </>
   );
 }

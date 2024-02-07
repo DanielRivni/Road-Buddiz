@@ -7,10 +7,13 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import { signInUserWithEmailAndPassword } from "../middleware/auth";
 import { getUserRole } from "../middleware/firestore/users";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 function SignInCard() {
   const redirect = useNavigate();
@@ -18,6 +21,23 @@ function SignInCard() {
   const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState(false);
+  const location = useLocation();
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+
+  useEffect(() => {
+    if (location.state && location.state.openSuccessSnackbar) {
+      setOpenSuccessSnackbar(true);
+    }
+  }, [location.state]);
+
+
+  const handleCloseSuccessSnackbar = (event,reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSuccessSnackbar(false);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,7 +52,6 @@ function SignInCard() {
     };
 
     fetchData();
-
   }, []);
 
   const signInUser = async () => {
@@ -42,8 +61,11 @@ function SignInCard() {
         setFormError(true);
         return;
       }
-      
-      const userCredentials = await signInUserWithEmailAndPassword(email, password);
+
+      const userCredentials = await signInUserWithEmailAndPassword(
+        email,
+        password
+      );
       if (!userCredentials) {
         console.error("User Not Found");
         return;
@@ -55,21 +77,26 @@ function SignInCard() {
       }
 
       redirectUser(userRole);
-
     } catch (error) {
       console.error("Error signing in:", error);
     }
   };
-  
+
   const redirectUser = (userRole) => {
     const { userType, loggedInUserID } = userRole;
-  
+
     switch (userType) {
       case 1:
-        redirect("/VolunteerTaskPage", { replace: true, state: { uid: loggedInUserID } });
+        redirect("/VolunteerTaskPage", {
+          replace: true,
+          state: { uid: loggedInUserID },
+        });
         break;
       case 2:
-        redirect("/RequestsPage", { replace: true, state: { uid: loggedInUserID } });
+        redirect("/RequestsPage", {
+          replace: true,
+          state: { uid: loggedInUserID },
+        });
         break;
       default:
         redirect("/");
@@ -93,6 +120,12 @@ function SignInCard() {
     setPassword(event.target.value);
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      signInUser();
+    }
+  };
+
   return (
     <>
       <div id="home-page-content">
@@ -111,16 +144,17 @@ function SignInCard() {
                 id="email-error"
                 error={emailError || (formError && !email)}
                 helperText={
-                  (formError && !email)
+                  formError && !email
                     ? "שדה חובה"
                     : emailError
-                      ? "אימייל לא תקין"
-                      : ""
+                    ? "אימייל לא תקין"
+                    : ""
                 }
                 className="home-page-inputs"
                 variant="outlined"
-                placeholder="אימייל או מספר טלפון"
+                placeholder="אימייל"
                 onChange={handleEmailChange}
+                onKeyDown={handleKeyPress}
               ></TextField>
               <TextField
                 className="home-page-inputs"
@@ -130,6 +164,7 @@ function SignInCard() {
                 error={formError && !password} // Check formError and password state
                 helperText={formError && !password ? "שדה חובה" : ""}
                 onChange={handlePasswordChange}
+                onKeyDown={handleKeyPress}
               ></TextField>
             </div>
           </CardContent>
@@ -166,6 +201,20 @@ function SignInCard() {
           </CardContent>
         </Card>
       </div>
+      <Snackbar
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            open={openSuccessSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSuccessSnackbar}
+          >
+            <Alert
+              onClose={handleCloseSuccessSnackbar}
+              severity="success"
+              sx={{ width: "100%" }}
+            >
+              הרשמה בוצעה בהצלחה!
+            </Alert>
+          </Snackbar> 
     </>
   );
 }

@@ -9,6 +9,9 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import InputAdornment from "@mui/material/InputAdornment";
 import { signInUserWithEmailAndPassword } from "../middleware/auth";
 import { getUserRole } from "../middleware/firestore/users";
 import { useState, useEffect } from "react";
@@ -30,8 +33,7 @@ function SignInCard() {
     }
   }, [location.state]);
 
-
-  const handleCloseSuccessSnackbar = (event,reason) => {
+  const handleCloseSuccessSnackbar = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
@@ -155,6 +157,13 @@ function SignInCard() {
                 placeholder="אימייל"
                 onChange={handleEmailChange}
                 onKeyDown={handleKeyPress}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon />
+                    </InputAdornment>
+                  ),
+                }}
               ></TextField>
               <TextField
                 className="home-page-inputs"
@@ -165,6 +174,13 @@ function SignInCard() {
                 helperText={formError && !password ? "שדה חובה" : ""}
                 onChange={handlePasswordChange}
                 onKeyDown={handleKeyPress}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon />
+                    </InputAdornment>
+                  ),
+                }}
               ></TextField>
             </div>
           </CardContent>
@@ -202,19 +218,21 @@ function SignInCard() {
         </Card>
       </div>
       <Snackbar
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            open={openSuccessSnackbar}
-            autoHideDuration={6000}
-            onClose={handleCloseSuccessSnackbar}
-          >
-            <Alert
-              onClose={handleCloseSuccessSnackbar}
-              severity="success"
-              sx={{ width: "100%" }}
-            >
-            <div style={{ marginRight: "10px" ,marginLeft: "10px"}}>הרשמה בוצעה בהצלחה!</div>
-            </Alert>
-          </Snackbar> 
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={openSuccessSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSuccessSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSuccessSnackbar}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          <div style={{ marginRight: "10px", marginLeft: "10px" }}>
+            הרשמה בוצעה בהצלחה!
+          </div>
+        </Alert>
+      </Snackbar>
     </>
   );
 }

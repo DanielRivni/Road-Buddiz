@@ -11,7 +11,7 @@ function RequestsPage() {
   return (
     <>
       <div id="title-container">
-        <h1 id="title" style={{ color: "#ffa70f", margin: "0" }}>
+        <h1 id="title" style={{ color: "#000000", margin: "0" }}>
           היסטוריית בקשות
         </h1>
         <div id="button-container">

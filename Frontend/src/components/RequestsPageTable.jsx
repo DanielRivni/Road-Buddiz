@@ -38,7 +38,7 @@ function RequestsPageTable() {
         {isLoading ? (
           <p>Loading...</p>
         ) : rows.length === 0 ? (
-          <div className="no-data-text">אין היסטורית בקשות</div>
+          <div className="no-data-text">אין היסטוריית בקשות</div>
         ) : (
           <TableContainer id="requests-table" component={Paper}>
             <Table aria-label="simple table">

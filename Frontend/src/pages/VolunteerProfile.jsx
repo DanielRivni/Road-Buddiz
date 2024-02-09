@@ -49,7 +49,7 @@ const VolunteerProfile = () => {
     <>
       {/* Title */}
       <div className="title-container">
-        <h1 id="title" style={{ color: "#ffa70f" }}>
+        <h1 id="title" style={{ color: "#000000" }}>
           פרופיל מתנדב
         </h1>
         <VolunteerMenuList />

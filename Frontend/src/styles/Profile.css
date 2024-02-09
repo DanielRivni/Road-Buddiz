@@ -19,6 +19,7 @@ body {
 }
 
 .profile-card {
+  padding: 2.5em 1em;
   width: 100%;
   height: fit-content;
   max-width: 100%;
@@ -48,8 +49,8 @@ body {
 
 #profile-avatar {
   margin: 0 auto 20px;
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
 }
 
 .delete-confirmation {

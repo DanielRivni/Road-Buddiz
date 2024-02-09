@@ -46,7 +46,7 @@ export default function ClientProfile() {
     <>
       {/* Title */}
       <div className="title-container">
-        <h1 id="title" style={{ color: "#ffa70f" }}>
+        <h1 id="title" style={{ color: "#000000" }}>
           פרופיל לקוח
         </h1>
         <ClientMenuList uid={uid} />

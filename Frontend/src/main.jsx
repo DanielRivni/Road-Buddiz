@@ -17,7 +17,7 @@ const theme = createTheme({
       //#E9F1FA  center
       //#00ABE4   up
       //  #000000
-      main: "#ffa70f",
+      main: "#00abe4",
       contrastText: "#fff",
     },
   },

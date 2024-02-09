@@ -68,7 +68,7 @@ const VolunteerTaskPage = () => {
   return (
     <div className="task-selection-page">
       <div className="title-container">
-        <Typography variant="h4" style={{ color: "#ffa70f" }}>
+        <Typography variant="h4" style={{ color: "#000000" }}>
           בחירת משימות
         </Typography>
       </div>

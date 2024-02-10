@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Button } from '@mui/material';
+import React, { useEffect, useState, useRef } from 'react';
+import { Typography, Button, Fab, Box, Avatar } from '@mui/material';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -82,7 +83,7 @@ const ProfileEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
   }, [anyErrors]);
 
   return (
-    
+
     <div style={{ display: 'flex', flexDirection: 'row', gap: '50px' }}>
       <Button
         variant="contained"
@@ -105,7 +106,7 @@ const ProfileEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
 };
 
 const AccountEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
-  
+
   const [buttonStyle, setButtonStyle] = useState({
     backgroundColor: '',
     color: 'primary',
@@ -146,10 +147,68 @@ const AccountEditButtons = ({ handleSaveClick, handleCancelClick, errors }) => {
         color="primary"
         size="small"
         onClick={handleCancelClick}
-        >
+      >
         בטל
       </Button>
     </div>
+  );
+};
+
+const UploadAvatar = ({ firstname, lastname, file, handleFileChange, handleImageRemove, editingProfile }) => {
+  const fullName = `${firstname} ${lastname}`;
+  const inputFileRef = useRef(null);
+
+  const handleFabClick = (event) => {
+    // Check if the click event target is the Fab button with the CameraAltIcon
+    if (event.currentTarget.contains(event.target)) {
+      // Trigger the input box when Fab button is clicked
+      inputFileRef.current.click();
+    }
+  };
+
+
+  return (
+    <Box sx={{ position: 'relative', display: 'inline-block' }}>
+      {file ? (
+        // If file is not null, render Avatar with the image
+        <Avatar id="profile-avatar" src={file} />
+      ) : (
+        // If file is null, render Avatar with initials
+        <Avatar id="profile-avatar" sx={getAvatarStyle(fullName)}>
+          <span style={{ fontSize: '50px' }}>{firstname.charAt(0).toUpperCase()}</span>
+          <span style={{ fontSize: '50px' }}>{lastname.charAt(0).toUpperCase()}</span>
+        </Avatar>
+      )}
+      {editingProfile && (
+        <>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+            ref={inputFileRef}
+          />
+          <Fab
+            size="small"
+            color="default"
+            aria-label="upload-avatar"
+            onClick={(event) => handleFabClick(event)}
+            sx={{ position: 'absolute', bottom: '20px', right: '-5px' }}
+          >
+            <CameraAltIcon />
+          </Fab>
+          <Fab
+            size="small"
+            color="default"
+            aria-label="upload-avatar"
+            onClick={handleImageRemove}
+            sx={{ position: 'absolute', bottom: '20px', right: '115px' }}
+          >
+            <DeleteIcon />
+          </Fab>
+        </>
+      )}
+    </Box>
   );
 };
 
@@ -198,4 +257,5 @@ export {
   ProfileEditButtons,
   AccountEditButtons,
   DeleteButton,
+  UploadAvatar,
 };

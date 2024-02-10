@@ -10,8 +10,10 @@ import {
   onSnapshot,
   query,
   where,
+  FieldValue,
 } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 // Create
 export const createFirestoreDocument = async (collectionPath, data) => {
@@ -91,6 +93,70 @@ export const updateDocumentField = async (
   } catch (error) {
     console.error(error);
     return false;
+  }
+};
+
+// Update Image
+export const uploadImageUpdDoc = async (
+  file,
+  dirPath,
+  collectionPath,
+  documentId,
+  name = "",
+) => {
+  try {
+    const imagePath = await uploadImage(file, dirPath, name);
+    if (imagePath) {
+      const updatedData = {
+        profileImg: imagePath,
+        profileImgStorage: (name === "") ? dirPath + file.name : dirPath + name + "." + (file.name).split('.').pop()
+      };
+      const success = await updateDocumentField(collectionPath, documentId, updatedData);
+      return success;
+    } else {
+      throw new Error("Failed to upload image or retrieve URL");
+    }
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+const uploadImage = async (file, path, name) => {
+  return new Promise((resolve, reject) => {
+    const imgType = (file.name).split('.').pop();
+    let storageRef;
+    if (name === "") {
+      storageRef = ref(storage, path + file.name);
+    }
+    else {
+      storageRef = ref(storage, path + name + "." + imgType);
+    }
+    const uploadTask = uploadBytes(storageRef, file);
+
+    uploadTask.then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((downloadURL) => {
+        resolve(downloadURL);
+      }).catch((error) => {
+        reject(error);
+      });
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+}
+
+// Delete file
+export const deleteFile = async (
+  filePath
+) => {
+  try {
+    const storageRef = ref(storage, filePath);
+    await deleteObject(storageRef);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false; // Failed to delete
   }
 };
 

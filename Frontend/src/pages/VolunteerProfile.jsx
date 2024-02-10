@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
+import { Card, CardContent, Typography, CardActions, TextField, Box } from '@mui/material';
 import {
-  DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons,
-  AccountEditButtons, DeleteButton
+  DeleteConfirmation, EditProfileButton, EditAccountButton, ProfileEditButtons,
+  AccountEditButtons, DeleteButton, UploadAvatar
 } from "../components/Profile";
 import { VolunteerMenuList } from '../components/Menu';
 import { useLocation } from 'react-router-dom';
@@ -10,9 +10,8 @@ import { readFirestoreDocument } from "../middleware/firestore";
 import profileHook from '../hooks/profileStates.js';
 import "../styles/Profile.css";
 
-const VolunteerProfile = () => {
+export default function VolunteerProfile() {
   const { uid } = useLocation().state;
-  const collection = "users";
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = profileHook(uid);
   const accountErrors = { email: rest.emailError, password: rest.passwordError }
@@ -22,20 +21,20 @@ const VolunteerProfile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDocument = await readFirestoreDocument(collection, uid);
+        const userDocument = await readFirestoreDocument("users", uid);
         if (!userDocument) {
           console.log("User not found!");
           return;
         }
 
-        const { firstName, lastName, phoneNumber, email } = userDocument;
+        const { firstName, lastName, phoneNumber, email, profileImg } = userDocument;
 
         if (firstName === undefined | lastName === undefined | phoneNumber === undefined | email === undefined) {
           console.error("User data is missing fields or incorrect named fields");
           return;
         }
 
-        rest.initProfile(firstName, lastName, phoneNumber, email);
+        await rest.initProfile(firstName, lastName, phoneNumber, email, profileImg);
 
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -43,7 +42,7 @@ const VolunteerProfile = () => {
     };
 
     fetchUserData();
-  }, [uid]);
+  }, []);
 
   return (
     <>
@@ -52,7 +51,7 @@ const VolunteerProfile = () => {
         <h1 id="title" style={{ color: "#000000" }}>
           פרופיל מתנדב
         </h1>
-        <VolunteerMenuList />
+        <VolunteerMenuList uid={uid} />
       </div>
 
       {/* Page Content */}
@@ -61,21 +60,24 @@ const VolunteerProfile = () => {
 
           {/* Profile Content*/}
           <CardContent >
-            <Avatar id="profile-avatar" sx={getAvatarStyle(fullName)}>
-              <span style={{ fontSize: '50px' }}>{rest.firstname.charAt(0).toUpperCase()}</span>
-              <span style={{ fontSize: '50px' }}>{rest.lastname.charAt(0).toUpperCase()}</span>
-            </Avatar>
+            <UploadAvatar
+              firstname={rest.firstname}
+              lastname={rest.lastname}
+              file={rest.img}
+              handleFileChange={rest.handleImgChange}
+              handleImageRemove={rest.handleImageRemove}
+              editingProfile={rest.editingProfile} />
+
             {rest.editingProfile ? (
               <Box
                 component="form"
                 sx={{
                   display: 'flex',
-                  flexDirection: 'column',  // Set the direction to column
-                  alignItems: 'center',     // Center horizontally
-                  justifyContent: 'center', // Center vertically
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   '& > :not(style)': { m: 1, width: '30ch' },
-                }}
-              >
+                }}>
                 <TextField
                   error={rest.firstnameError}
                   helperText={rest.firstnameError ? "שם פרטי לא תקין" : ""}
@@ -187,5 +189,3 @@ const VolunteerProfile = () => {
     </>
   );
 }
-
-export default VolunteerProfile;

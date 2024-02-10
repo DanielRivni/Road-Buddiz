@@ -1,9 +1,30 @@
 import { useState } from 'react';
-import { updateDocumentField, deleteFirestoreDocument} from '../middleware/firestore';
+import { updateDocumentField, deleteFirestoreDocument, uploadImageUpdDoc, deleteFile, readFirestoreDocument } from '../middleware/firestore';
+import { getDownloadURL, ref } from "firebase/storage";
+import { storage } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
 
 const profileHook = (uid) => {
   const navigate = useNavigate();
+
+  ////////////// Upload Avatar //////////////
+  const [img, setImg] = useState(null);
+  const [file, setFile] = useState(null);
+  const [imgRemove, setImgRemove] = useState(false);
+  const [origImg, setOrigImg] = useState(null);
+
+  const handleImgChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    setImg(URL.createObjectURL(selectedFile));
+    setImgRemove(false);
+  };
+
+  const handleImageRemove = () => {
+    setFile(null);
+    setImg(null);
+    setImgRemove(true);
+  };
 
   ////////////// Profile Details //////////////
   // States
@@ -24,25 +45,52 @@ const profileHook = (uid) => {
     setEditedFirstname(firstname);
     setEditedLastname(lastname);
     setEditedPhone(phone);
+    setOrigImg(img);
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     if (!firstnameError && editedFirstname.length > 0) {
       setFirstname(editedFirstname);
-      updateDocumentField("users", uid, { firstName: editedFirstname });
+      await updateDocumentField("users", uid, { firstName: editedFirstname });
     }
     if (!lastnameError) {
       setLastname(editedLastname);
-      updateDocumentField("users", uid, { lastName: editedLastname });
+      await updateDocumentField("users", uid, { lastName: editedLastname });
     }
     if (!phoneError && editedPhone.length > 0) {
       setPhone(editedPhone);
-      updateDocumentField("users", uid, { phoneNumber: editedPhone });
+      await updateDocumentField("users", uid, { phoneNumber: editedPhone });
     }
+
+    if (imgRemove) {
+      // Delete old profile image
+      const userDoc = await readFirestoreDocument("users", uid);
+      const oldImgStorage = userDoc.profileImgStorage;
+      if (userDoc && oldImgStorage) {
+        await deleteFile(oldImgStorage);
+        await updateDocumentField("users", uid, { profileImg: "", profileImgStorage: "" });
+      }
+
+      setEditingProfile(false);
+    } else if (img !== origImg) {
+      // Delete old profile image
+      const userDoc = await readFirestoreDocument("users", uid);
+      const oldImgStorage = userDoc.profileImgStorage;
+      if (userDoc && oldImgStorage) {
+        await deleteFile(oldImgStorage);
+      }
+      // Update profile image
+      await uploadImageUpdDoc(file, `profileImages/`, "users", uid);
+    }
+
     setEditingProfile(false);
   };
 
   const handleCancelClick = () => {
+    if (origImg !== img) {
+      setImg(origImg);
+    }
+    setImgRemove(false);
     setEditingProfile(false);
   };
 
@@ -145,6 +193,11 @@ const profileHook = (uid) => {
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
 
   const confirmDelete = () => {
+    const userDoc = readFirestoreDocument("users", uid);
+    const imgStorage = userDoc.profileImgStorage;
+    if (imgStorage) {
+      deleteFile(imgStorage);
+    }
     deleteFirestoreDocument("users", uid);
     localStorage.removeItem("loggedInID");
     closeDeleteConfirmation();
@@ -155,16 +208,24 @@ const profileHook = (uid) => {
     setDeleteConfirmation(false);
   };
 
-  ////////////// Extra Methods //////////////
-
-  const initProfile = (firstname, lastname, phone, username) => {
-    setFirstname(firstname);
-    setLastname(lastname);
-    setPhone(phone);
-    setUsername(username);
-  }
+  ////////////// Initiate states //////////////
+  const initProfile = async (firstname, lastname, phone, username, profileImage) => {
+    try {
+      setFirstname(firstname);
+      setLastname(lastname);
+      setPhone(phone);
+      setUsername(username);
+      if (profileImage) {
+        const downloadURL = await getDownloadURL(ref(storage, profileImage));
+        setImg(downloadURL);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return {
+    img,
     firstname,
     lastname,
     phone,
@@ -183,6 +244,8 @@ const profileHook = (uid) => {
     editedPassword,
     editingAccount,
     deleteConfirmation,
+    handleImgChange,
+    handleImageRemove,
     initProfile,
     confirmDelete,
     closeDeleteConfirmation,

@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
-import { Card, CardContent, Typography, Avatar, CardActions, TextField, Box } from '@mui/material';
-import { DeleteConfirmation, getAvatarStyle, EditProfileButton, EditAccountButton, ProfileEditButtons,
-  AccountEditButtons, DeleteButton } from "../components/Profile";
+import { Card, CardContent, Typography, CardActions, TextField, Box } from '@mui/material';
+import {
+  DeleteConfirmation, EditProfileButton, EditAccountButton, ProfileEditButtons, AccountEditButtons, DeleteButton, UploadAvatar
+} from "../components/Profile";
 import { ClientMenuList } from '../components/Menu';
 import profileHook from '../hooks/profileStates.js';
 import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
 import "../styles/Profile.css";
+
 
 export default function ClientProfile() {
   const { uid } = useLocation().state;
@@ -25,14 +27,14 @@ export default function ClientProfile() {
           return;
         }
 
-        const { firstName, lastName, phoneNumber, email } = userDocument;
+        const { firstName, lastName, phoneNumber, email, profileImg } = userDocument;
 
         if (firstName === undefined | lastName === undefined | phoneNumber === undefined | email === undefined) {
           console.error("User data is missing fields or incorrect named fields");
           return;
         }
 
-        rest.initProfile(firstName, lastName, phoneNumber, email);
+        await rest.initProfile(firstName, lastName, phoneNumber, email, profileImg);
 
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -58,10 +60,15 @@ export default function ClientProfile() {
 
           {/* Profile Content*/}
           <CardContent >
-            <Avatar id="profile-avatar" sx={getAvatarStyle(fullName)}>
-              <span style={{ fontSize: '50px' }}>{rest.firstname.charAt(0).toUpperCase()}</span>
-              <span style={{ fontSize: '50px' }}>{rest.lastname.charAt(0).toUpperCase()}</span>
-            </Avatar>
+
+            <UploadAvatar
+              firstname={rest.firstname}
+              lastname={rest.lastname}
+              file={rest.img}
+              handleFileChange={rest.handleImgChange}
+              handleImageRemove={rest.handleImageRemove}
+              editingProfile={rest.editingProfile} />
+
             {rest.editingProfile ? (
               <Box
                 component="form"

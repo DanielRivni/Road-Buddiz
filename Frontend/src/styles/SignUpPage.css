@@ -1,5 +1,5 @@
 #signup-page-content {
-    padding: 2em 1em;
+    padding: 0.5em 1em;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -15,7 +15,7 @@
     max-width: 350px;
     max-height: 530px;
     padding: 4em 2em;
-    margin-top: 45px;
+    margin-top: 25px;
 
 }
 
@@ -88,8 +88,7 @@
 
 .top-center {
     position: absolute;
-    top: 1px; 
-    /* right: 30px;  */
+    top: -30px; 
     display: flex;
     align-items: center;
   }

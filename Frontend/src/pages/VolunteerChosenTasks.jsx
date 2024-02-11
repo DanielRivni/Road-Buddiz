@@ -34,7 +34,7 @@ const VolunteerChosenTasks = ({
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "left",
             padding: "8px",
           }}
         >
@@ -49,33 +49,33 @@ const VolunteerChosenTasks = ({
       </AppBar>
       <TabPanel value={tabValue} index={0}>
         <Typography variant="h6">{chosenTask?.name}</Typography>
-        <Typography>Status: {chosenTask?.status}</Typography>
-        <Typography>Distance: {chosenTask?.distance}</Typography>
-        {/* Add any other task details you want to display */}
+        <Typography>סטטוס: {chosenTask?.status}</Typography>
+        <Typography>מרחק: {chosenTask?.distance}</Typography>
+        {}
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            marginTop: "16px",
+            marginTop: "36px",
           }}
         >
           <Button
             variant="contained"
             color="primary"
-            onClick={() => handleStatusChange("Active")}
+            onClick={() => handleStatusChange("בטיפול")}
           >
             בחר סיוע
           </Button>
           <Button
             variant="contained"
             color="inherit"
-            onClick={() => handleStatusChange("Pending")}
+            onClick={() => handleStatusChange("מחכה לסיוע")}
           >
             בטל סיוע
           </Button>
         </Box>
       </TabPanel>
-      {/* Add more TabPanels for additional features */}
+      {}
     </Dialog>
   );
 };

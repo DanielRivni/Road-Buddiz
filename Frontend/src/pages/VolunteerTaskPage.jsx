@@ -1,4 +1,6 @@
+import "../styles/VolunteerTaskPage.css";
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Typography,
   Button,
@@ -11,21 +13,21 @@ import {
   Paper,
 } from "@mui/material";
 import VolunteerChosenTasks from "./VolunteerChosenTasks";
+import { VolunteerMenuList } from "../components/Menu";
 const VolunteerTaskPage = () => {
   const [tasks, setTasks] = useState([
-    createTask("Task 1", "Pending", 10),
-    createTask("Task 2", "Pending", 5),
-    createTask("Task 3", "Pending", 347),
-    createTask("Task 4", "Pending", 5),
-    createTask("Task 5", "Pending", 52),
-    createTask("Task 6", "Pending", 435),
-    // Add more tasks as needed
+    createTask("Task 1", "בטיפול", 10),
+    createTask("Task 2", "מחכה לסיוע", 5),
+    createTask("Task 3", "מחכה לסיוע", 347),
+    createTask("Task 4", "מחכה לסיוע", 5),
+    createTask("Task 5", "בטיפול", 52),
+    createTask("Task 6", "בטיפול", 435),
   ]);
 
   const [chosenTask, setChosenTask] = useState(null);
   const [isAscending, setIsAscending] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const { uid } = useLocation().state;
   // Function to handle task selection and open modal
   const handleTaskSelect = (task) => {
     setChosenTask(task);
@@ -46,7 +48,7 @@ const VolunteerTaskPage = () => {
 
   function createTask(name, status, distance) {
     return {
-      id: Math.random().toString(36).slice(2, 11), // Generate a random ID
+      id: Math.random().toString(36).slice(2, 11),
       name,
       status,
       distance,
@@ -67,24 +69,21 @@ const VolunteerTaskPage = () => {
 
   return (
     <div className="task-selection-page">
-      <div className="title-container">
-        <Typography variant="h4" style={{ color: "#000000" }}>
-          בחירת משימות
-        </Typography>
+      <div className="header-container">
+        <Typography variant="h4">בחירת משימות</Typography>
+        <VolunteerMenuList uid={uid} />
       </div>
+
       <div className="sort-button-container">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={sortTasksByDistance}
-        >
-          מיין לפי מרחק {isAscending ? "(הכי קרוב ראשון)" : "(הכי רחוק ראשון)"}
+        <Button variant="contained" onClick={sortTasksByDistance}>
+          מיין לפי מרחק
         </Button>
       </div>
+
       <div className="task-list">
-        <Paper style={{ overflow: "auto" }}>
+        <Paper>
           <TableContainer>
-            <Table aria-label="tasks table">
+            <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>שם</TableCell>
@@ -92,12 +91,10 @@ const VolunteerTaskPage = () => {
                   <TableCell>מרחק (קמ)</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {tasks.map((task) => (
-                  <TableRow
-                    key={task.id}
-                    onClick={() => handleTaskSelect(task)}
-                  >
+                  <TableRow onClick={() => handleTaskSelect(task)}>
                     <TableCell>{task.name}</TableCell>
                     <TableCell>{task.status}</TableCell>
                     <TableCell>{task.distance}</TableCell>
@@ -108,6 +105,7 @@ const VolunteerTaskPage = () => {
           </TableContainer>
         </Paper>
       </div>
+
       <VolunteerChosenTasks
         chosenTask={chosenTask}
         isOpen={isModalOpen}

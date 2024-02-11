@@ -1,0 +1,30 @@
+.task-selection-page {
+    padding: 10px; 
+  }
+  
+  .task-selection-menu {
+    padding: 10px;
+    align-content: left;
+  }
+  
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    text-align: right; 
+  }
+  
+  .sort-button-container {
+    text-align: left;
+    margin-bottom: 15px;
+  }
+  
+  .task-list {
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: right; 
+  }
+  
+  .task-list .TableCell,
+  .task-list .TableHead .TableRow .TableCell {
+    text-align: right;
+  }

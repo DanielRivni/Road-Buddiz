@@ -160,7 +160,7 @@ function SignUpCard() {
               <TextField
                 className="signup-page-inputs"
                 variant="outlined"
-                placeholder="(אופציונלי) שם משפחה"
+                placeholder=" (אופציונלי) שם משפחה"
                 value={lastName}
                 onChange={handleLastNameChange}
                 onKeyDown={handleKeyPress}
@@ -209,7 +209,7 @@ function SignUpCard() {
               type="password"
               placeholder="סיסמה"
               value={password}
-              error={formErrors.password || (password && password.length < 8)}
+              error={!!(formErrors.password || (password && password.length < 8))}
               helperText={
                 formErrors.password
                   ? "שדה חובה"

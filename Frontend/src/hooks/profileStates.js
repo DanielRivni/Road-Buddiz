@@ -3,8 +3,10 @@ import { updateDocumentField, deleteFirestoreDocument, uploadImageUpdDoc, delete
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
+import { getAuth, updatePassword } from "firebase/auth";
 
 const profileHook = (uid) => {
+  const auth = getAuth();
   const navigate = useNavigate();
 
   ////////////// Upload Avatar //////////////
@@ -31,13 +33,14 @@ const profileHook = (uid) => {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [phone, setPhone] = useState("");
-  const [firstnameError, setFirstnameError] = useState(false);
-  const [lastnameError, setLastnameError] = useState(false);
-  const [phoneError, setPhoneError] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
   const [editedFirstname, setEditedFirstname] = useState("");
   const [editedLastname, setEditedLastname] = useState("");
   const [editedPhone, setEditedPhone] = useState("");
+  //error states
+  const [firstnameError, setFirstnameError] = useState(false);
+  const [lastnameError, setLastnameError] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
 
   // Handlers
   const handleEditClick = () => {
@@ -159,7 +162,7 @@ const profileHook = (uid) => {
     setEditedPassword(e.target.value)
 
     // Password validation
-    const passwordRegex = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{6,}$/;
+    const passwordRegex = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{8,}$/;
     const isValidPassword = passwordRegex.test(inputPassword);
 
     // Update password error state
@@ -180,6 +183,12 @@ const profileHook = (uid) => {
 
     if (!passwordError && editedPassword.length > 0) {
       setPassword(editedPassword);
+      updatePassword(auth.currentUser, editedPassword).then(() => {
+        // Password updated.
+      }).catch((error) => {
+        // An error happened.
+        console.log(error);
+      });
     }
 
     setEditingAccount(false);
@@ -201,8 +210,18 @@ const profileHook = (uid) => {
     deleteFirestoreDocument("users", uid);
     localStorage.removeItem("loggedInID");
     closeDeleteConfirmation();
+    let user = auth.currentUser;
+    user?.delete().then(() => {
+      // User deleted.
+      console.log("User deleted");
+    }).catch((error) => {
+      // An error happened.
+      console.log(error);
+    });
+
     navigate('/');
   };
+
 
   const closeDeleteConfirmation = () => {
     setDeleteConfirmation(false);

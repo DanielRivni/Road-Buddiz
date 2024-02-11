@@ -148,7 +148,7 @@ export default function ClientProfile() {
                 <div>
                   <TextField
                     error={rest.passwordError}
-                    helperText={rest.passwordError ? "חובה 6 תווים, אות ומספר" : ""}
+                    helperText={rest.passwordError ? "חובה 8 תווים, אות ומספר" : ""}
                     variant="outlined"
                     placeholder="סיסמה"
                     value={rest.editedPassword}

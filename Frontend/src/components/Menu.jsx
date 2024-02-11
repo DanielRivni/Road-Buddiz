@@ -106,11 +106,17 @@ const VolunteerMenuList = ({ uid }) => {
 
   const handleIssuesClick = () => {
     navigate("/VolunteerTaskPage", { replace: true, state: { uid: uid } });
-    setOpen(false); // Close the menu
+    setOpen(false);
   };
 
   const handleProfileClick = () => {
     navigate("/VolunteerProfile", { replace: true, state: { uid: uid } });
+    setOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    localStorage.removeItem("loggedInID");
+    navigate("/");
     setOpen(false);
   };
 
@@ -147,13 +153,22 @@ const VolunteerMenuList = ({ uid }) => {
             onClick={handleProfileClick}
             style={{ fontSize: "1.2rem", padding: "16px" }}
           >
+            <PermIdentityIcon style={{ marginLeft: 8 }} />
             פרופיל
           </MenuItem>
           <MenuItem
             onClick={handleIssuesClick}
             style={{ fontSize: "1.2rem", padding: "16px" }}
           >
-            משימות
+            <FormatListBulletedIcon style={{ marginLeft: 8 }} />
+            תקלות
+          </MenuItem>
+          <MenuItem
+            onClick={handleLogoutClick}
+            style={{ fontSize: "1.2rem", padding: "16px" }}
+          >
+            <LogoutIcon style={{ marginLeft: 8 }} />
+            התנתק
           </MenuItem>
         </MenuList>
       </Drawer>

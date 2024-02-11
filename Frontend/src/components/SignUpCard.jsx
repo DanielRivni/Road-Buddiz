@@ -160,7 +160,7 @@ function SignUpCard() {
               <TextField
                 className="signup-page-inputs"
                 variant="outlined"
-                placeholder="שם משפחה"
+                placeholder="(אופציונלי) שם משפחה"
                 value={lastName}
                 onChange={handleLastNameChange}
                 onKeyDown={handleKeyPress}

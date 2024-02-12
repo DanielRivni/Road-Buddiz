@@ -1,5 +1,4 @@
 import React from "react";
-import { styled } from "@mui/material/styles";
 import {
   Dialog,
   DialogTitle,
@@ -12,23 +11,38 @@ import {
 } from "@mui/material";
 import { LocalGasStation, TireRepair, Cable } from "@mui/icons-material";
 import "../styles/OpenTaskPage.css";
-
-const useStyles = styled({
-  list: {
-    width: 250,
-  },
-});
+import TaskForm from "../components/TaskForm";
 
 const OpenTaskPage = () => {
-  const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const [chooseTaskDialogOpen, setChooseTaskDialogOpen] = React.useState(false);
+  const [selectedTask, setSelectedTask] = React.useState(null);
+  const [formDialogOpen, setFormDialogOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleChooseTaskDialogOpen = () => {
+    setChooseTaskDialogOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleChooseTaskDialogClose = () => {
+    setChooseTaskDialogOpen(false);
+  };
+
+  const handleFormDialogOpen = () => {
+    setFormDialogOpen(true);
+    handleChooseTaskDialogClose(); // Close the choose task dialog when opening form dialog
+  };
+
+  const handleFormDialogClose = () => {
+    setFormDialogOpen(false);
+  };
+
+  const handleTaskSelection = (task) => {
+    setSelectedTask(task);
+    handleFormDialogOpen(); // Open the form dialog after task selection
+  };
+
+  const handleExit = () => {
+    setSelectedTask(null); // Reset selected task
+    handleFormDialogClose(); // Close the form dialog
   };
 
   return (
@@ -37,27 +51,36 @@ const OpenTaskPage = () => {
         <Button
           variant="contained"
           id="open-new-request-button"
-          onClick={handleClickOpen}
+          onClick={handleChooseTaskDialogOpen}
         >
           פתיחת תקלה
         </Button>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog
+          open={chooseTaskDialogOpen}
+          onClose={handleChooseTaskDialogClose}
+        >
           <DialogTitle>בחר תקלה</DialogTitle>
           <DialogContent>
-            <List className={classes.list}>
-              <ListItem button>
+            <List>
+              <ListItem button onClick={() => handleTaskSelection("שירות דלק")}>
                 <ListItemIcon>
                   <LocalGasStation />
                 </ListItemIcon>
                 <ListItemText primary="שירות דלק" />
               </ListItem>
-              <ListItem button>
+              <ListItem
+                button
+                onClick={() => handleTaskSelection("החלפת צמיג")}
+              >
                 <ListItemIcon>
                   <TireRepair />
                 </ListItemIcon>
                 <ListItemText primary="החלפת צמיג" />
               </ListItem>
-              <ListItem button>
+              <ListItem
+                button
+                onClick={() => handleTaskSelection("טעינת/החלפת מצבר")}
+              >
                 <ListItemIcon>
                   <Cable />
                 </ListItemIcon>
@@ -67,6 +90,13 @@ const OpenTaskPage = () => {
           </DialogContent>
         </Dialog>
       </div>
+      {selectedTask && (
+        <TaskForm
+          selectedTask={selectedTask}
+          onClose={handleFormDialogClose}
+          onExit={handleExit}
+        />
+      )}
     </>
   );
 };

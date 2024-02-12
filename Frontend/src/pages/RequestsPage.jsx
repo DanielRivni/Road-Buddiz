@@ -1,9 +1,9 @@
 import "../styles/RequestsPage.css";
 import Button from "@mui/material/Button";
 import * as React from "react";
+import { useLocation } from "react-router-dom";
 import RequestsPageTable from "../components/RequestsPageTable";
 import { ClientMenuList } from "../components/Menu";
-import { useLocation } from "react-router-dom";
 import OpenTaskPage from "../components/OpenTasks";
 
 function RequestsPage() {

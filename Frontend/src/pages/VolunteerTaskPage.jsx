@@ -12,7 +12,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import VolunteerChosenTasks from "./VolunteerChosenTasks";
+import VolunteerTasksDialog from "../components/VolunteerTasksDialog";
 import { VolunteerMenuList } from "../components/Menu";
 const VolunteerTaskPage = () => {
   const [tasks, setTasks] = useState([
@@ -28,7 +28,7 @@ const VolunteerTaskPage = () => {
   const [isAscending, setIsAscending] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { uid } = useLocation().state;
-  // Function to handle task selection and open modal
+
   const handleTaskSelect = (task) => {
     setChosenTask(task);
     setIsModalOpen(true);
@@ -70,7 +70,7 @@ const VolunteerTaskPage = () => {
   return (
     <div className="task-selection-page">
       <div className="header-container">
-        <Typography variant="h4">בחירת משימות</Typography>
+        <Typography variant="h3">בחירת משימות</Typography>
         <VolunteerMenuList uid={uid} />
       </div>
 
@@ -94,7 +94,10 @@ const VolunteerTaskPage = () => {
 
               <TableBody>
                 {tasks.map((task) => (
-                  <TableRow onClick={() => handleTaskSelect(task)}>
+                  <TableRow
+                    onClick={() => handleTaskSelect(task)}
+                    key={task.id}
+                  >
                     <TableCell>{task.name}</TableCell>
                     <TableCell>{task.status}</TableCell>
                     <TableCell>{task.distance}</TableCell>
@@ -106,11 +109,11 @@ const VolunteerTaskPage = () => {
         </Paper>
       </div>
 
-      <VolunteerChosenTasks
-        chosenTask={chosenTask}
+      <VolunteerTasksDialog
+        task={chosenTask}
         isOpen={isModalOpen}
-        handleClose={handleCloseModal}
-        handleTaskStatusChange={handleTaskStatusChange}
+        onClose={handleCloseModal}
+        onStatusChange={handleTaskStatusChange}
       />
     </div>
   );

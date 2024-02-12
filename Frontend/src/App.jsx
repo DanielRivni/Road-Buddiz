@@ -10,7 +10,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import VolunteerTaskPage from "./pages/VolunteerTaskPage.jsx";
-import VolunteerChosenTasks from "./pages/VolunteerChosenTasks.jsx";
 import { getUserRole } from "./middleware/firestore/users/index.js";
 import { getCurrentUser } from "./middleware/auth/index.js";
 

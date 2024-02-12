@@ -9,6 +9,7 @@ import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
 import profileHook from '../hooks/profileStates.js';
 import "../styles/Profile.css";
+import { getAuth } from "firebase/auth";
 
 export default function VolunteerProfile() {
   const { uid } = useLocation().state;
@@ -17,6 +18,7 @@ export default function VolunteerProfile() {
   const accountErrors = { email: rest.emailError, password: rest.passwordError }
   const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
   const fullName = `${rest.firstname} ${rest.lastname}`;
+  const auth = getAuth();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -113,7 +115,7 @@ export default function VolunteerProfile() {
                   טלפון: {rest.phone}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
-                  תאריך הצטרפות: {new Date().toLocaleDateString()}
+                  תאריך הצטרפות: {new Date(auth.currentUser.metadata.creationTime).toLocaleDateString()}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
                   כמות סיועים:

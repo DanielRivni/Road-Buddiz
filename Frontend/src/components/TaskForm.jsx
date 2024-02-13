@@ -5,14 +5,15 @@ import {
   Typography,
   Button,
   TextField,
-  Select,
-  MenuItem,
+  Box,
 } from "@mui/material";
+import "../styles/TaskForm.css";
 
 function TaskForm({ selectedTask, onClose, onExit }) {
   const [taskDetails, setTaskDetails] = useState({
     description: "",
     additionalDetails: "",
+    image: null,
   });
 
   const handleChange = (event) => {
@@ -23,6 +24,14 @@ function TaskForm({ selectedTask, onClose, onExit }) {
     }));
   };
 
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    setTaskDetails((prevDetails) => ({
+      ...prevDetails,
+      image: URL.createObjectURL(file),
+    }));
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("Submitting task details:", taskDetails);
@@ -30,14 +39,14 @@ function TaskForm({ selectedTask, onClose, onExit }) {
   };
 
   const handleExit = () => {
-    onExit(); // Call onExit function to close the dialog
+    onExit();
   };
 
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" gutterBottom>
-          {selectedTask} {/* Display selectedTask as the dialog title */}
+          {selectedTask}
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -61,12 +70,32 @@ function TaskForm({ selectedTask, onClose, onExit }) {
             value={taskDetails.additionalDetails}
             onChange={handleChange}
           />
-          <Button type="submit" variant="contained" color="primary">
-            שלח
-          </Button>
-          <Button onClick={handleExit} variant="contained" color="secondary">
-            יציאה
-          </Button>
+          <Typography variant="h6" gutterBottom>
+            צרף תמונה
+          </Typography>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ marginBottom: "1rem" }}
+          />
+          {taskDetails.image && (
+            <div className="task-form-container">
+              <img
+                src={taskDetails.image}
+                alt="Selected"
+                className="image-preview"
+              />
+            </div>
+          )}
+          <Box display="flex" justifyContent="space-between" mt={2}>
+            <Button onClick={handleExit} variant="contained" color="secondary">
+              יציאה
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              שלח
+            </Button>
+          </Box>
         </form>
       </CardContent>
     </Card>

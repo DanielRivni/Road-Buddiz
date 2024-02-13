@@ -1,49 +1,16 @@
 import React from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Button,
+  Dialog, DialogTitle, DialogContent, List, ListItemButton, ListItemIcon, ListItemText,
+  Button, Typography
 } from "@mui/material";
 import { LocalGasStation, TireRepair, Cable } from "@mui/icons-material";
 import "../styles/OpenTaskPage.css";
-import TaskForm from "../components/TaskForm";
+import TaskForm from "./TaskForm";
+import StepByStepGuide from "./IssueGuide";
+import OpenTaskHook from "../hooks/OpenTaskStates";
 
 const OpenTaskPage = () => {
-  const [chooseTaskDialogOpen, setChooseTaskDialogOpen] = React.useState(false);
-  const [selectedTask, setSelectedTask] = React.useState(null);
-  const [formDialogOpen, setFormDialogOpen] = React.useState(false);
-
-  const handleChooseTaskDialogOpen = () => {
-    setChooseTaskDialogOpen(true);
-  };
-
-  const handleChooseTaskDialogClose = () => {
-    setChooseTaskDialogOpen(false);
-  };
-
-  const handleFormDialogOpen = () => {
-    setFormDialogOpen(true);
-    handleChooseTaskDialogClose(); // Close the choose task dialog when opening form dialog
-  };
-
-  const handleFormDialogClose = () => {
-    setFormDialogOpen(false);
-  };
-
-  const handleTaskSelection = (task) => {
-    setSelectedTask(task);
-    handleFormDialogOpen(); // Open the form dialog after task selection
-  };
-
-  const handleExit = () => {
-    setSelectedTask(null); // Reset selected task
-    handleFormDialogClose(); // Close the form dialog
-  };
+  const { ...rest } = OpenTaskHook();
 
   return (
     <>
@@ -51,51 +18,69 @@ const OpenTaskPage = () => {
         <Button
           variant="contained"
           id="open-new-request-button"
-          onClick={handleChooseTaskDialogOpen}
+          onClick={rest.handleChooseTaskDialogOpen}
         >
           פתיחת תקלה
         </Button>
         <Dialog
-          open={chooseTaskDialogOpen}
-          onClose={handleChooseTaskDialogClose}
+          open={rest.taskState.chooseTaskDialogOpen}
+          onClose={rest.handleChooseTaskDialogClose}
         >
           <DialogTitle>בחר תקלה</DialogTitle>
           <DialogContent>
             <List>
-              <ListItem button onClick={() => handleTaskSelection("שירות דלק")}>
+              <ListItemButton onClick={() => rest.handleTaskSelection("שירות דלק")}>
+
                 <ListItemIcon>
                   <LocalGasStation />
                 </ListItemIcon>
                 <ListItemText primary="שירות דלק" />
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => handleTaskSelection("החלפת צמיג")}
-              >
+              </ListItemButton>
+
+              <ListItemButton onClick={() => rest.handleTaskSelection("החלפת צמיג")}>
+
                 <ListItemIcon>
                   <TireRepair />
                 </ListItemIcon>
                 <ListItemText primary="החלפת צמיג" />
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => handleTaskSelection("טעינת/החלפת מצבר")}
-              >
+              </ListItemButton>
+
+              <ListItemButton onClick={() => rest.handleTaskSelection("טעינת/החלפת מצבר")}>
+
                 <ListItemIcon>
                   <Cable />
                 </ListItemIcon>
                 <ListItemText primary="טעינת/החלפת מצבר" />
-              </ListItem>
+
+              </ListItemButton>
             </List>
+            <Typography variant="body1" id="contact-us-text">
+              אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.
+            </Typography>
           </DialogContent>
         </Dialog>
       </div>
-      {selectedTask && (
-        <TaskForm
-          selectedTask={selectedTask}
-          onClose={handleFormDialogClose}
-          onExit={handleExit}
-        />
+      {rest.taskState.selectedTask && (
+        <>
+          {rest.taskState.guideOpen && (
+            <div id='issue-guide'>
+              <StepByStepGuide
+                selectedTask={rest.taskState.selectedTask}
+                onContinue={rest.handleGuideContinue}
+                onExit={rest.handleGuideExit}
+              />
+            </div>
+          )}
+          {rest.taskState.formDialogOpen && (
+            <div id='task-form'>
+              <TaskForm
+                selectedTask={rest.taskState.selectedTask}
+                onClose={rest.handleFormDialogClose}
+                onExit={rest.handleExit}
+              />
+            </div>
+          )}
+        </>
       )}
     </>
   );

@@ -1,71 +1,22 @@
-/* Containers */
-.title-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Rubik', sans-serif;
-    padding: 0 1em;
-  }
-  
-  .logo-image {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-  }
-  
-  .profile-card {
-    padding: 2.5em 1em;
-    width: 100%;
-    height: fit-content;
-    max-width: 100%;
-    text-align: center;
-  }
-  
-  /* Mui Features */
-  .profile-card .MuiButton-root {
-    font-size: 1.3em;
-    gap: 0.2em;
-  }
-  
-  .profile-card .MuiCardActions-root {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .profile-card .MuiTextField-root {
-    margin-bottom: 15px;
-  }
-  
-  .profile-card .MuiTextField-root input {
-    font-size: 20px;
-  }
-  
-  /* Specific Components */
-  
-  #profile-avatar {
-    margin: 0 auto 20px;
-    width: 150px;
-    height: 150px;
-  }
-  
-  .delete-confirmation {
-    margin-top: 10px;
-    text-align: center;
-  }
-  
-  .delete-confirmation .buttons {
-    display: flex;
-    justify-content: space-evenly;
-    margin-right: 20px;
-  }
-  
-  .delete-confirmation #message {
-    font-size: 20px;
-  }
-  
-  /* Additional styles for OpenTaskPage */
-  body {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  
+/* Additional styles for OpenTaskPage */
+#issue-guide,
+#task-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1em;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#contact-us-text {
+  max-width: 350px;
+  word-wrap: break-word;
+  background-color: #f4f4f4;
+  /* Light gray background color */
+  padding: 8px;
+  /* Add some padding for better readability */
+}

@@ -18,7 +18,6 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 export const createFirestoreDocument = async (collectionPath, data) => {
   try {
     const docRef = await addDoc(collection(db, collectionPath), data);
-    console.log("Document written with ID: ", docRef.id);
     return true;
   } catch (error) {
     console.error(error);
@@ -232,3 +231,31 @@ export const listenToDocumentsByRealTime = (collectionPath, callback) => {
     console.error("listenToDocumentsByRealTime Failed", error);
   }
 };
+
+export const listenToDocumentsByQueryRealTimeWithId = (
+  collectionPath,
+  queryObj,
+  callback
+) => {
+  try {
+    const collectionRef = collection(db, collectionPath);
+    const q = query(
+      collectionRef,
+      where(queryObj.fieldName, queryObj.operation, queryObj.value)
+    );
+    onSnapshot(q, (querySnapshot) => {
+      const docsData = [];
+      querySnapshot.forEach((doc) => {
+        // Push an object containing both the data and the ID
+        docsData.push({
+          id: doc.id,
+          data: doc.data(),
+        });
+      });
+      callback(docsData);
+    });
+  } catch (error) {
+    console.error("listenToDocumentsByQueryRealTime Failed", error);
+  }
+};
+

@@ -1,13 +1,17 @@
 import "../styles/RequestsPage.css";
 import React, { useState, useEffect } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
-import { listenToRelevantRequests } from "../middleware/firestore/requests/index.js";
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, Snackbar,
+  TableRow, Paper, Button, Alert
+} from "@mui/material";
+import { listenToRelevantRequests, deleteRequest } from "../middleware/firestore/requests/index.js";
 import { getUserRole } from "../middleware/firestore/users/index.js";
 
 function RequestsPageTable({ uid }) {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteResult, setDeleteResult] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,6 +31,20 @@ function RequestsPageTable({ uid }) {
 
     fetchData();
   }, []);
+
+  const handleDeleteRequest = async (taskId) => {
+    try {
+      const result = await deleteRequest(taskId);
+      if (result === "התקלה נמחקה בהצלחה") {
+        setDeleteResult({ success: true, message: result });
+      } else {
+        setDeleteResult({ success: false, message: result });
+      }
+    } catch (error) {
+      console.error("Error deleting request:", error);
+      // Handle error accordingly
+    }
+  };
 
   return (
     <div id="requests-page-content">
@@ -50,8 +68,10 @@ function RequestsPageTable({ uid }) {
                 <TableCell align="right" width="12%">
                   שם מתנדב
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="right" >
                   תיאור
+                </TableCell>
+                <TableCell align="right" >
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -62,12 +82,37 @@ function RequestsPageTable({ uid }) {
                   <TableCell align="right">{row.task}</TableCell>
                   <TableCell align="right">{row.volName}</TableCell>
                   <TableCell align="right">{row.description}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => handleDeleteRequest(row.TaskId)}
+                    >
+                      בטל סיוע
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
+      {/* Snackbar to display result */}
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={deleteResult !== null}
+        autoHideDuration={5000}
+        onClose={() => setDeleteResult(null)}
+      >
+        <Alert
+          onClose={() => setDeleteResult(null)}
+          severity={deleteResult?.success ? "success" : "error"}
+        >
+          <div style={{ marginRight: "10px", marginLeft: "10px" }}>
+            {deleteResult?.message}
+          </div>
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

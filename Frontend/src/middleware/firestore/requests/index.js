@@ -1,10 +1,11 @@
 import {
   getDocumentsByQuery,
-  listenToDocumentsByQueryRealTime,
+  listenToDocumentsByQueryRealTimeWithId,
   createFirestoreDocument,
   listenToDocumentsByRealTime,
   updateDocumentField,
-  readFirestoreDocument
+  readFirestoreDocument,
+  deleteFirestoreDocument
 } from "../index.js";
 
 function formatDate(date) {
@@ -36,26 +37,20 @@ export const getRelevantRequests = async (uid, userType) => {
 const generateHandleNewRequestSnapshot = (callback) => {
   return async (requests) => {
     const formattedRequests = [];
-    for (const request of requests) {
+    for (const { id, data } of requests) {
       try {
-        let volData = {};
-        if (request.volUid) {
-          const volDoc = await readFirestoreDocument("users", request.volUid);
+        let volName = "";
+        if (data.volUid) {
+          const volDoc = await readFirestoreDocument("users", data.volUid);
           if (volDoc) {
-            volData = {
-              firstName: volDoc.firstName,
-              lastName: volDoc.lastName,
-              // Add more fields as needed
-            };
+            volName = volDoc.firstName + " " + volDoc.lastName;
           }
         }
-        const volName = volData.firstName + " " + volData.lastName;
         const formattedRequest = {
-          ...request,
-          date: formatDate(request.date.toDate()),
+          TaskId: id,
+          ...data,
+          date: formatDate(data.date.toDate()),
           volName: volName,
-          // Include additional volunteer data
-          volData: volData,
         };
         formattedRequests.push(formattedRequest);
       } catch (error) {
@@ -73,7 +68,7 @@ const generateHandleNewRequestSnapshot = (callback) => {
 export const listenToRelevantRequests = async (uid, userType, callback) => {
   try {
     const handleNewRequestSnapshot = generateHandleNewRequestSnapshot(callback);
-    listenToDocumentsByQueryRealTime(
+    listenToDocumentsByQueryRealTimeWithId(
       "requests",
       {
         fieldName: userType === 1 ? "volUid" : "clientUid",
@@ -165,5 +160,19 @@ export const uploadRequest = async (uid, desc, extraDetails, task) => {
   } catch (error) {
     console.error("Error at uploadRequest", error);
     return false;
+  }
+}
+
+export const deleteRequest = async (requestId) => {
+  try {
+    const requestDoc = await readFirestoreDocument("requests", requestId);
+    if (requestDoc.status !== "מחכה לסיוע") {
+      return 'התקלה כבר נמצאת בטיפול';
+    }
+    await deleteFirestoreDocument("requests", requestId);
+    return 'התקלה נמחקה בהצלחה'
+  } catch (error) {
+    console.error("Error at deleteRequest", error);
+    return 'שגיאה בעת מחיקת התקלה'
   }
 }

@@ -15,12 +15,12 @@ function RequestsPage() {
           היסטוריית בקשות
         </h1>
         <div id="button-container">
-          <OpenTaskPage />
+          <OpenTaskPage uid={uid}/>
           <ClientMenuList uid={uid} />
         </div>
       </div>
       <div id="requests-page-content">
-        <RequestsPageTable />
+        <RequestsPageTable uid={uid}/>
       </div>
     </>
   );

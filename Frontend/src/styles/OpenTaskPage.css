@@ -1,4 +1,8 @@
 /* Additional styles for OpenTaskPage */
+.openTask-task-list .MuiListItemText-root {
+  text-align: right;
+}
+
 #issue-guide,
 #task-form {
   display: flex;

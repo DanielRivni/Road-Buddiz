@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -9,38 +9,9 @@ import {
 } from "@mui/material";
 import "../styles/TaskForm.css";
 
-function TaskForm({ selectedTask, onClose, onExit }) {
-  const [taskDetails, setTaskDetails] = useState({
-    description: "",
-    additionalDetails: "",
-    image: null,
-  });
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setTaskDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
-  };
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    setTaskDetails((prevDetails) => ({
-      ...prevDetails,
-      image: URL.createObjectURL(file),
-    }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Submitting task details:", taskDetails);
-    onClose();
-  };
-
-  const handleExit = () => {
-    onExit();
-  };
+function TaskForm({ 
+  selectedTask, taskDetails, onExit, onSubmit, 
+  handleTextChange, handleImageChange }) {
 
   return (
     <Card>
@@ -48,7 +19,7 @@ function TaskForm({ selectedTask, onClose, onExit }) {
         <Typography variant="h5" gutterBottom>
           {selectedTask}
         </Typography>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <TextField
             name="description"
             label="תיאור התקלה"
@@ -56,7 +27,7 @@ function TaskForm({ selectedTask, onClose, onExit }) {
             fullWidth
             margin="normal"
             value={taskDetails.description}
-            onChange={handleChange}
+            onChange={handleTextChange}
             required
           />
           <TextField
@@ -68,7 +39,7 @@ function TaskForm({ selectedTask, onClose, onExit }) {
             rows={4}
             margin="normal"
             value={taskDetails.additionalDetails}
-            onChange={handleChange}
+            onChange={handleTextChange}
           />
           <Typography variant="h6" gutterBottom>
             צרף תמונה
@@ -89,7 +60,7 @@ function TaskForm({ selectedTask, onClose, onExit }) {
             </div>
           )}
           <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button onClick={handleExit} variant="contained" color="secondary">
+            <Button onClick={onExit} variant="contained" color="secondary">
               יציאה
             </Button>
             <Button type="submit" variant="contained" color="primary">

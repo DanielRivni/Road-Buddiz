@@ -9,8 +9,10 @@ import TaskForm from "./TaskForm";
 import StepByStepGuide from "./IssueGuide";
 import OpenTaskHook from "../hooks/OpenTaskStates";
 
-const OpenTaskPage = () => {
-  const { ...rest } = OpenTaskHook();
+const OpenTaskPage = ({ uid }) => {
+  const { ...rest } = OpenTaskHook(uid);
+  const services = ["שירות דלק", "החלפת צמיג", "טעינת/החלפת מצבר"];
+  const contactUsText = "אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.";
 
   return (
     <>
@@ -18,44 +20,42 @@ const OpenTaskPage = () => {
         <Button
           variant="contained"
           id="open-new-request-button"
-          onClick={rest.handleChooseTaskDialogOpen}
+          onClick={rest.handleDialogOpen}
         >
           פתיחת תקלה
         </Button>
-        <Dialog
-          open={rest.taskState.chooseTaskDialogOpen}
-          onClose={rest.handleChooseTaskDialogClose}
-        >
+        <Dialog open={rest.taskState.chooseTaskDialogOpen}>
           <DialogTitle>בחר תקלה</DialogTitle>
           <DialogContent>
-            <List>
-              <ListItemButton onClick={() => rest.handleTaskSelection("שירות דלק")}>
-
+            <List className="openTask-task-list">
+              <ListItemButton onClick={() => rest.handleTaskSelection(services[0])}>
+                <ListItemText primary={services[0]}/>
                 <ListItemIcon>
                   <LocalGasStation />
                 </ListItemIcon>
-                <ListItemText primary="שירות דלק" />
+
               </ListItemButton>
 
-              <ListItemButton onClick={() => rest.handleTaskSelection("החלפת צמיג")}>
-
+              <ListItemButton onClick={() => rest.handleTaskSelection(services[1])}>
+              
+              <ListItemText primary={services[1]}/>
                 <ListItemIcon>
                   <TireRepair />
                 </ListItemIcon>
-                <ListItemText primary="החלפת צמיג" />
+                
               </ListItemButton>
 
-              <ListItemButton onClick={() => rest.handleTaskSelection("טעינת/החלפת מצבר")}>
+              <ListItemButton onClick={() => rest.handleTaskSelection(services[2])}>
 
+              <ListItemText primary={services[2]}/>
                 <ListItemIcon>
                   <Cable />
                 </ListItemIcon>
-                <ListItemText primary="טעינת/החלפת מצבר" />
 
               </ListItemButton>
             </List>
             <Typography variant="body1" id="contact-us-text">
-              אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.
+              {contactUsText}
             </Typography>
           </DialogContent>
         </Dialog>
@@ -65,9 +65,10 @@ const OpenTaskPage = () => {
           {rest.taskState.guideOpen && (
             <div id='issue-guide'>
               <StepByStepGuide
+                steps={rest.guideSteps}
                 selectedTask={rest.taskState.selectedTask}
                 onContinue={rest.handleGuideContinue}
-                onExit={rest.handleGuideExit}
+                onExit={rest.handleExit}
               />
             </div>
           )}
@@ -75,8 +76,11 @@ const OpenTaskPage = () => {
             <div id='task-form'>
               <TaskForm
                 selectedTask={rest.taskState.selectedTask}
-                onClose={rest.handleFormDialogClose}
+                taskDetails={rest.taskDetails}
                 onExit={rest.handleExit}
+                onSubmit={rest.handleFormSubmit}
+                handleTextChange={rest.handleFormTextChange}
+                handleImageChange={rest.handleFormImageChange}
               />
             </div>
           )}

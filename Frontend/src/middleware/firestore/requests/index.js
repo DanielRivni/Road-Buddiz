@@ -1,6 +1,7 @@
 import {
   getDocumentsByQuery,
   listenToDocumentsByQueryRealTime,
+  createFirestoreDocument,
 } from "../index.js";
 
 function formatDate(date) {
@@ -31,15 +32,17 @@ export const getRelevantRequests = async (uid, userType) => {
 
 const generateHandleNewRequestSnapshotFunction = (callback) => {
   return (requests) => {
-    const formatedRequests = requests.map((request) => {
+    const formattedRequests = requests.map((request) => {
       request.date = formatDate(request.date.toDate());
       return request;
     });
-    callback(formatedRequests);
+    if (callback) {
+      callback(formattedRequests);
+    }
   };
 };
 
-export const listenToRelevantRequests = async (uid, userType, callback) => {
+export const listenToRelevantRequests = async (uid, userType, callback = null) => {
   try {
     const handleNewRequestSnapshot = generateHandleNewRequestSnapshotFunction(callback);
     listenToDocumentsByQueryRealTime(
@@ -52,6 +55,42 @@ export const listenToRelevantRequests = async (uid, userType, callback) => {
       handleNewRequestSnapshot
     );
   } catch (error) {
-    console.error("Error at getRelevantRequests", error);
+    console.error("Error at listenToRelevantRequests", error);
   }
 };
+
+export const GetGuide = async (task) => {
+  try {
+    const guideDoc = await getDocumentsByQuery("guides", {
+      fieldName: "task",
+      operation: "==",
+      value: task,
+    });
+    if (guideDoc.length === 0) {
+      console.error("No guide found for task: ", task);
+      return [];
+    }
+    return guideDoc[0].steps;
+  } catch (error) {
+    console.error("Error at GetGuideDoc", error);
+  }
+};
+
+export const uploadRequest = async (uid, desc, extraDetails, task) => {
+  try {
+    const request = {
+      clientUid: uid,
+      status: "open",
+      date: new Date(),
+      description: desc,
+      extraDetails: extraDetails,
+      task: task,
+      volUid: "",
+    };
+    await createFirestoreDocument("requests", request);
+    return true;
+  } catch (error) {
+    console.error("Error at uploadRequest", error);
+    return false;
+  }
+}

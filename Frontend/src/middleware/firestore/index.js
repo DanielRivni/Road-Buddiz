@@ -10,7 +10,6 @@ import {
   onSnapshot,
   query,
   where,
-  FieldValue,
 } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";

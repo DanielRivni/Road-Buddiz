@@ -2,6 +2,9 @@ import {
   getDocumentsByQuery,
   listenToDocumentsByQueryRealTime,
   createFirestoreDocument,
+  listenToDocumentsByRealTime,
+  updateDocumentField,
+  readFirestoreDocument
 } from "../index.js";
 
 function formatDate(date) {
@@ -30,21 +33,46 @@ export const getRelevantRequests = async (uid, userType) => {
   }
 };
 
-const generateHandleNewRequestSnapshotFunction = (callback) => {
-  return (requests) => {
-    const formattedRequests = requests.map((request) => {
-      request.date = formatDate(request.date.toDate());
-      return request;
-    });
+const generateHandleNewRequestSnapshot = (callback) => {
+  return async (requests) => {
+    const formattedRequests = [];
+    for (const request of requests) {
+      try {
+        let volData = {};
+        if (request.volUid) {
+          const volDoc = await readFirestoreDocument("users", request.volUid);
+          if (volDoc) {
+            volData = {
+              firstName: volDoc.firstName,
+              lastName: volDoc.lastName,
+              // Add more fields as needed
+            };
+          }
+        }
+        const volName = volData.firstName + " " + volData.lastName;
+        const formattedRequest = {
+          ...request,
+          date: formatDate(request.date.toDate()),
+          volName: volName,
+          // Include additional volunteer data
+          volData: volData,
+        };
+        formattedRequests.push(formattedRequest);
+      } catch (error) {
+        console.error("Error getting volunteer data:", error);
+      }
+    }
     if (callback) {
       callback(formattedRequests);
     }
   };
 };
 
-export const listenToRelevantRequests = async (uid, userType, callback = null) => {
+
+
+export const listenToRelevantRequests = async (uid, userType, callback) => {
   try {
-    const handleNewRequestSnapshot = generateHandleNewRequestSnapshotFunction(callback);
+    const handleNewRequestSnapshot = generateHandleNewRequestSnapshot(callback);
     listenToDocumentsByQueryRealTime(
       "requests",
       {
@@ -58,6 +86,27 @@ export const listenToRelevantRequests = async (uid, userType, callback = null) =
     console.error("Error at listenToRelevantRequests", error);
   }
 };
+
+const generateHandleAllRequestSnapshots = (callback) => {
+  return (requests) => {
+    const formattedRequests = requests.map(({ id, data }) => {
+      data.date = formatDate(data.date.toDate());
+      return { id, data };
+    });
+    if (callback) {
+      callback(formattedRequests);
+    }
+  };
+}
+
+export const listenToAllRequests = async (callback) => {
+  try {
+    const handleNewRequestSnapshot = generateHandleAllRequestSnapshots(callback);
+    listenToDocumentsByRealTime("requests", handleNewRequestSnapshot);
+  } catch (error) {
+    console.error("Error at listenToAllRequests", error);
+  }
+}
 
 export const GetGuide = async (task) => {
   try {
@@ -76,11 +125,35 @@ export const GetGuide = async (task) => {
   }
 };
 
+export const assignRequest = async (requestId, volUid) => {
+  try {
+    const update = {
+      status: "בטיפול",
+      volUid: volUid,
+    };
+    await updateDocumentField("requests", requestId, update);
+  } catch (error) {
+    console.error("Error at updateRequest", error);
+  }
+};
+
+export const cancelRequestAssignment = async (requestId) => {
+  try {
+    const update = {
+      status: "מחכה לסיוע",
+      volUid: "",
+    };
+    await updateDocumentField("requests", requestId, update);
+  } catch (error) {
+    console.error("Error at resignRequest", error);
+  }
+};
+
 export const uploadRequest = async (uid, desc, extraDetails, task) => {
   try {
     const request = {
       clientUid: uid,
-      status: "open",
+      status: "מחכה לסיוע",
       date: new Date(),
       description: desc,
       extraDetails: extraDetails,

@@ -210,3 +210,25 @@ export const listenToDocumentsByQueryRealTime = (
     console.error("listenToDocumentsByQueryRealTime Failed", error);
   }
 };
+
+export const listenToDocumentsByRealTime = (collectionPath, callback) => {
+  try {
+    const collectionRef = collection(db, collectionPath);
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
+      const docsData = [];
+      querySnapshot.forEach((doc) => {
+        // Include both document data and document ID
+        const docWithDataAndId = {
+          id: doc.id,
+          data: doc.data()
+        };
+        docsData.push(docWithDataAndId);
+      });
+      callback(docsData);
+    });
+    // Return the unsubscribe function to allow the caller to stop listening to changes
+    return unsubscribe;
+  } catch (error) {
+    console.error("listenToDocumentsByRealTime Failed", error);
+  }
+};

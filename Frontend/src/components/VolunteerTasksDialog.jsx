@@ -8,24 +8,27 @@ import {
   Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { assignRequest, cancelRequestAssignment } from "../middleware/firestore/requests";
 
-const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
+const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange, volUid }) => {
   const handleStatusChange = (newStatus) => {
     onStatusChange(task.id, newStatus);
   };
 
-  const handleChooseTask = () => {
+  const handleChooseTask = async () => {
     handleStatusChange("בטיפול");
-    onClose(); // Close the dialog after choosing the task
+    await assignRequest(task.id, volUid);
+    onClose();
   };
 
-  const handleUnchooseTask = () => {
+  const handleUnchooseTask = async () => {
     handleStatusChange("מחכה לסיוע");
-    onClose(); // Close the dialog after unchoosing the task
+    await cancelRequestAssignment(task.id);
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
       <AppBar position="sticky">
         <Box
           sx={{
@@ -41,14 +44,14 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
           </IconButton>
         </Box>
       </AppBar>
-      <Box p={3}>
+      <Box p={3} textAlign="center">
         <Typography>סטטוס: {task?.status}</Typography>
         <Typography>מרחק: {task?.distance} ק"מ</Typography>
         <Box
           sx={{
             display: "flex",
-            justifyContent: "right",
             marginTop: "36px",
+            justifyContent: "space-between",
           }}
         >
           <Button
@@ -62,7 +65,6 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
             variant="contained"
             color="inherit"
             onClick={handleUnchooseTask}
-            sx={{ marginLeft: 2 }} // Add some margin between the buttons
           >
             בטל סיוע
           </Button>

@@ -50,14 +50,16 @@ function RequestsPageTable({ uid }) {
                 <TableCell align="right" width="12%">
                   שם מתנדב
                 </TableCell>
-                <TableCell align="right">תיאור</TableCell>
+                <TableCell align="right">
+                  תיאור
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.map((row, index) => (
                 <TableRow key={index} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell align="right">{row.date}</TableCell>
-                  <TableCell align="right">{row.problem}</TableCell>
+                  <TableCell align="right">{row.task}</TableCell>
                   <TableCell align="right">{row.volName}</TableCell>
                   <TableCell align="right">{row.description}</TableCell>
                 </TableRow>

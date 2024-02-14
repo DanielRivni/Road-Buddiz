@@ -1,11 +1,11 @@
 .task-selection-page {
-  padding: 10px; 
+  padding: 10px;
 }
 
 .header-container {
   display: flex;
   justify-content: space-between;
-  text-align: right; 
+  text-align: right;
 }
 
 .sort-button-container {
@@ -14,24 +14,17 @@
 }
 
 .task-list {
-  max-height: 400px; 
+  max-height: 400px;
   overflow-y: auto;
 }
-
-
-.task-list table {
-  direction: rtl;
-  text-align: right;
-}
-
 
 .task-list th,
 .task-list td {
   text-align: right;
+  width: 100px;
 }
 
-  .task-selection-menu {
-    padding: 10px;
-    align-content: left;
-  }
-  
+.task-selection-menu {
+  padding: 10px;
+  align-content: left;
+}

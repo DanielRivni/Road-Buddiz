@@ -118,10 +118,10 @@ export default function VolunteerProfile() {
                   תאריך הצטרפות: {new Date(auth.currentUser.metadata.creationTime).toLocaleDateString()}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
-                  כמות סיועים:
+                  כמות סיועים: 0
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom >
-                  מספר מתנדב:
+                  מספר מתנדב: 666
                 </Typography>
               </Box>
             )}

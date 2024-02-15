@@ -46,6 +46,21 @@ function RequestsPageTable({ uid }) {
     }
   };
 
+  function getStatusBackgroundColor(status) {
+    switch (status) {
+      case 'מחכה לסיוע':
+        return '#FFEB3B'; // Yellow
+      case 'בטיפול':
+        return '#95F59C'; // Green
+      default:
+        return '#FFFFFF'; // Default white
+    }
+  }
+
+  function isActiveTask(status) {
+    return status === 'מחכה לסיוע';
+  }
+
   return (
     <div id="requests-page-content">
       {isLoading ? (
@@ -62,14 +77,23 @@ function RequestsPageTable({ uid }) {
                 <TableCell align="right" width="6%">
                   תאריך
                 </TableCell>
-                <TableCell align="right" width="12%">
+                <TableCell align="right" width="10%">
                   סוג תקלה
                 </TableCell>
-                <TableCell align="right" width="12%">
+                <TableCell align="right" width="10%">
+                  סטטוס
+                </TableCell>
+                <TableCell align="right" width="17%">
+                  תיאור
+                </TableCell>
+                <TableCell align="right" width="20%">
+                  פירוט נוסף
+                </TableCell>
+                <TableCell align="right" width="10%">
                   שם מתנדב
                 </TableCell>
-                <TableCell align="right" >
-                  תיאור
+                <TableCell align="right" width="10%">
+                  טלפון ליצירת קשר
                 </TableCell>
                 <TableCell align="right" >
                 </TableCell>
@@ -80,13 +104,23 @@ function RequestsPageTable({ uid }) {
                 <TableRow key={index} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell align="right">{row.date}</TableCell>
                   <TableCell align="right">{row.task}</TableCell>
-                  <TableCell align="right">{row.volName}</TableCell>
+                  <TableCell align="right" style={{ backgroundColor: getStatusBackgroundColor(row.status) }}>
+                    {row.status}
+                  </TableCell>
                   <TableCell align="right">{row.description}</TableCell>
+                  <TableCell align="right">{row.extraDetails}</TableCell>
+                  <TableCell align="right">{row.volName}</TableCell>
+                  <TableCell align="right">{row.volPhone}</TableCell>
                   <TableCell>
                     <Button
                       variant="contained"
                       color="error"
                       onClick={() => handleDeleteRequest(row.TaskId)}
+                      disabled={!isActiveTask(row.status)}
+                      style={{
+                        backgroundColor: isActiveTask(row.status) ? '#FF3333  ' : '',
+                        color: isActiveTask(row.status) ? 'white' : 'primary'
+                      }}
                     >
                       בטל סיוע
                     </Button>
@@ -97,7 +131,7 @@ function RequestsPageTable({ uid }) {
           </Table>
         </TableContainer>
       )}
-      {/* Snackbar to display result */}
+      {/* Snackbar to display delete result */}
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={deleteResult !== null}

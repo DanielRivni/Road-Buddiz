@@ -39,11 +39,14 @@ const generateHandleNewRequestSnapshot = (callback) => {
     const formattedRequests = [];
     for (const { id, data } of requests) {
       try {
+        // Add volunteer details for each request
         let volName = "";
+        let volPhone = "";
         if (data.volUid) {
           const volDoc = await readFirestoreDocument("users", data.volUid);
           if (volDoc) {
             volName = volDoc.firstName + " " + volDoc.lastName;
+            volPhone = volDoc.phoneNumber;
           }
         }
         const formattedRequest = {
@@ -51,6 +54,7 @@ const generateHandleNewRequestSnapshot = (callback) => {
           ...data,
           date: formatDate(data.date.toDate()),
           volName: volName,
+          volPhone: volPhone,
         };
         formattedRequests.push(formattedRequest);
       } catch (error) {

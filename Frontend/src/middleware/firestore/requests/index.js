@@ -148,7 +148,7 @@ export const cancelRequestAssignment = async (requestId) => {
   }
 };
 
-export const uploadRequest = async (uid, desc, extraDetails, task) => {
+export const uploadRequest = async (uid, desc, extraDetails, task, locationString) => {
   try {
     const request = {
       clientUid: uid,
@@ -158,6 +158,7 @@ export const uploadRequest = async (uid, desc, extraDetails, task) => {
       extraDetails: extraDetails,
       task: task,
       volUid: "",
+      locationString
     };
     await createFirestoreDocument("requests", request);
     return true;

@@ -48,6 +48,7 @@ const OpenTaskHook = (uid) => {
     description: "",
     additionalDetails: "",
     image: null,
+    locationString:''
   });
 
   const handleFormTextChange = (event) => {
@@ -66,10 +67,18 @@ const OpenTaskHook = (uid) => {
     }));
   };
 
+  const handleFormLocationChange = (locationString) => {
+    debugger
+    setTaskDetails((prevDetails) => ({
+      ...prevDetails,
+      locationString
+    }));
+  };
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const { description, additionalDetails, image } = taskDetails;
-    await uploadRequest(uid, description, additionalDetails, taskState.selectedTask);
+    const { description, additionalDetails, image, locationString } = taskDetails;
+    await uploadRequest(uid, description, additionalDetails, taskState.selectedTask, locationString);
     handleExit();
   };
 
@@ -95,6 +104,7 @@ const OpenTaskHook = (uid) => {
     taskDetails,
     handleFormTextChange,
     handleFormImageChange,
+    handleFormLocationChange,
     handleFormSubmit,
     handleDialogOpen,
     handleTaskSelection,

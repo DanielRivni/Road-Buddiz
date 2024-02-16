@@ -1,10 +1,22 @@
 import "../styles/RequestsPage.css";
 import React, { useState, useEffect } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, Snackbar,
-  TableRow, Paper, Button, Alert
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  Snackbar,
+  TableRow,
+  Paper,
+  Button,
+  Alert,
 } from "@mui/material";
-import { listenToRelevantRequests, deleteRequest } from "../middleware/firestore/requests/index.js";
+import {
+  listenToRelevantRequests,
+  deleteRequest,
+} from "../middleware/firestore/requests/index.js";
+import TableActionsDialog from "./RequestPageTableActions.jsx";
 import { getUserRole } from "../middleware/firestore/users/index.js";
 
 function RequestsPageTable({ uid }) {
@@ -48,17 +60,17 @@ function RequestsPageTable({ uid }) {
 
   function getStatusBackgroundColor(status) {
     switch (status) {
-      case 'מחכה לסיוע':
-        return '#FFEB3B'; // Yellow
-      case 'בטיפול':
-        return '#95F59C'; // Green
+      case "מחכה לסיוע":
+        return "#FFEB3B"; // Yellow
+      case "בטיפול":
+        return "#95F59C"; // Green
       default:
-        return '#FFFFFF'; // Default white
+        return "#FFFFFF"; // Default white
     }
   }
 
   function isActiveTask(status) {
-    return status === 'מחכה לסיוע';
+    return status === "מחכה לסיוע";
   }
 
   return (
@@ -95,35 +107,36 @@ function RequestsPageTable({ uid }) {
                 <TableCell align="right" width="10%">
                   טלפון ליצירת קשר
                 </TableCell>
-                <TableCell align="right" >
-                </TableCell>
+                <TableCell align="right">פעולות</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.map((row, index) => (
-                <TableRow key={index} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                <TableRow
+                  key={index}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
                   <TableCell align="right">{row.date}</TableCell>
                   <TableCell align="right">{row.task}</TableCell>
-                  <TableCell align="right" style={{ backgroundColor: getStatusBackgroundColor(row.status) }}>
+                  <TableCell
+                    align="right"
+                    style={{
+                      backgroundColor: getStatusBackgroundColor(row.status),
+                    }}
+                  >
                     {row.status}
                   </TableCell>
                   <TableCell align="right">{row.description}</TableCell>
                   <TableCell align="right">{row.extraDetails}</TableCell>
                   <TableCell align="right">{row.volName}</TableCell>
                   <TableCell align="right">{row.volPhone}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => handleDeleteRequest(row.TaskId)}
-                      disabled={!isActiveTask(row.status)}
-                      style={{
-                        backgroundColor: isActiveTask(row.status) ? '#FF3333  ' : '',
-                        color: isActiveTask(row.status) ? 'white' : 'primary'
-                      }}
-                    >
-                      בטל סיוע
-                    </Button>
+                  <TableCell align="right">
+                    <TableActionsDialog
+                      uid={row.TaskId}
+                      handleDeleteRequest={handleDeleteRequest}
+                      isActiveTask={isActiveTask}
+                      status={row.status}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

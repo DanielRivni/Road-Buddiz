@@ -81,6 +81,7 @@ const OpenTaskPage = ({ uid }) => {
                 onSubmit={rest.handleFormSubmit}
                 handleTextChange={rest.handleFormTextChange}
                 handleImageChange={rest.handleFormImageChange}
+                handleLocationChange={rest.handleFormLocationChange}
               />
             </div>
           )}

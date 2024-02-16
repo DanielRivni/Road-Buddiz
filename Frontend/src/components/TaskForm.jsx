@@ -8,10 +8,34 @@ import {
   Box,
 } from "@mui/material";
 import "../styles/TaskForm.css";
+import { useEffect, useState } from "react";
 
-function TaskForm({ 
-  selectedTask, taskDetails, onExit, onSubmit, 
-  handleTextChange, handleImageChange }) {
+function TaskForm({
+  selectedTask,
+  taskDetails,
+  onExit,
+  onSubmit,
+  handleTextChange,
+  handleImageChange,
+  handleLocationChange,
+}) {
+  const locationSuccessCb = (currentLocation) => {
+    handleLocationChange(
+      `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+    );
+  };
+
+  const locationFailedCb = (error) => {
+    debugger; // TODO: Throw Snack
+    handleLocationChange("");
+  };
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      locationSuccessCb,
+      locationFailedCb
+    );
+  }, []);
 
   return (
     <Card>

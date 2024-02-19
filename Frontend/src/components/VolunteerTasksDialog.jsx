@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Dialog,
   AppBar,
@@ -9,14 +9,15 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { assignRequest, cancelRequestAssignment } from "../middleware/firestore/requests";
+import { getAuth } from "firebase/auth";
 
-const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange, volUid }) => {
-
+const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
   const handleStatusChange = (newStatus) => {
     onStatusChange(task.id, newStatus);
   };
 
   const handleChooseTask = async () => {
+    const volUid = getAuth().currentUser.uid;
     handleStatusChange("בטיפול");
     await assignRequest(task.id, volUid);
     onClose();

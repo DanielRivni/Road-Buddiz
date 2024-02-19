@@ -1,22 +1,16 @@
 import "../styles/HomePage.css";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import {
+  Card, CardContent, CardActions, Typography, TextField, Button,
+  InputAdornment, Checkbox, FormControlLabel, Snackbar, Alert
+} from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
-import InputAdornment from "@mui/material/InputAdornment";
+
 import { signInUserWithEmailAndPassword } from "../middleware/auth";
-import { getUserRole } from "../middleware/firestore/users";
+import { readFirestoreDocument } from "../middleware/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function SignInCard() {
   const redirect = useNavigate();
@@ -41,64 +35,56 @@ function SignInCard() {
     setOpenSuccessSnackbar(false);
   };
 
+  // Auto sign in user if already signed in
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userRole = await getUserRole();
-        if (userRole) {
-          redirectUser(userRole);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await readFirestoreDocument("users", user.uid);
+          redirectUser(userDoc.userType);
+        } catch (error) {
+          console.error("Error fetching user role:", error);
         }
-      } catch (error) {
-        console.error("Error fetching user role:", error);
+      } else {
+        console.log("No user is signed in");
       }
-    };
+    });
 
-    fetchData();
+    return () => unsubscribe();
   }, []);
 
   const signInUser = async () => {
     try {
+
       // Check if email or password is empty
       if (!email || !password) {
         setFormError(true);
         return;
       }
 
-      const userCredentials = await signInUserWithEmailAndPassword(
-        email,
-        password
-      );
+      const userCredentials = await signInUserWithEmailAndPassword(email, password);
       if (!userCredentials) {
         console.error("User Not Found");
         return;
       }
 
-      const userRole = await getUserRole(userCredentials.user.uid);
-      if (!userRole) {
-        console.error("User role not found");
-      }
+      const userDoc = await readFirestoreDocument("users", userCredentials.user.uid);
+      redirectUser(userDoc.userType);
 
-      redirectUser(userRole);
     } catch (error) {
       console.error("Error signing in:", error);
     }
   };
 
   const redirectUser = (userRole) => {
-    const { userType, loggedInUserID } = userRole;
 
-    switch (userType) {
+    switch (userRole) {
       case 1:
-        redirect("/VolunteerTaskPage", {
-          replace: true,
-          state: { uid: loggedInUserID },
-        });
+        redirect("/VolunteerTaskPage");
         break;
       case 2:
-        redirect("/RequestsPage", {
-          replace: true,
-          state: { uid: loggedInUserID },
-        });
+        redirect("/RequestsPage");
         break;
       default:
         redirect("/");
@@ -149,8 +135,8 @@ function SignInCard() {
                   formError && !email
                     ? "שדה חובה"
                     : emailError
-                    ? "אימייל לא תקין"
-                    : ""
+                      ? "אימייל לא תקין"
+                      : ""
                 }
                 className="home-page-inputs"
                 variant="outlined"

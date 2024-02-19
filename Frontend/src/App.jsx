@@ -7,11 +7,8 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate,
 } from "react-router-dom";
 import VolunteerTaskPage from "./pages/VolunteerTaskPage.jsx";
-import { getUserRole } from "./middleware/firestore/users/index.js";
-import { getCurrentUser } from "./middleware/auth/index.js";
 
 function App() {
   return (

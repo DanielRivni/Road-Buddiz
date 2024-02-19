@@ -7,8 +7,9 @@ import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import LogoutIcon from "@mui/icons-material/Logout";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Drawer from "@mui/material/Drawer";
+import { signOut, getAuth } from "firebase/auth";
 
-const ClientMenuList = ({ uid }) => {
+const ClientMenuList = () => {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -21,19 +22,23 @@ const ClientMenuList = ({ uid }) => {
   };
 
   const handleIssuesClick = () => {
-    navigate("/RequestsPage", { state: { uid: uid } });
+    navigate("/RequestsPage");
     setOpen(false); // Close the menu
   };
 
   const handleProfileClick = () => {
-    navigate("/ClientProfile", { state: { uid: uid } });
+    navigate("/ClientProfile");
     setOpen(false);
   };
 
-  const handleLogoutClick = () => {
-    localStorage.removeItem("loggedInID");
-    navigate("/");
-    setOpen(false);
+  const handleLogoutClick = async () => {
+    try {
+      await signOut(getAuth());
+      navigate("/");
+      setOpen(false);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -92,7 +97,7 @@ const ClientMenuList = ({ uid }) => {
   );
 };
 
-const VolunteerMenuList = ({ uid }) => {
+const VolunteerMenuList = () => {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -105,19 +110,23 @@ const VolunteerMenuList = ({ uid }) => {
   };
 
   const handleIssuesClick = () => {
-    navigate("/VolunteerTaskPage", { replace: true, state: { uid: uid } });
+    navigate("/VolunteerTaskPage");
     setOpen(false);
   };
 
   const handleProfileClick = () => {
-    navigate("/VolunteerProfile", { replace: true, state: { uid: uid } });
+    navigate("/VolunteerProfile");
     setOpen(false);
   };
 
-  const handleLogoutClick = () => {
-    localStorage.removeItem("loggedInID");
-    navigate("/");
-    setOpen(false);
+  const handleLogoutClick = async () => {
+    try {
+      await signOut(getAuth());
+      navigate("/");
+      setOpen(false);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (

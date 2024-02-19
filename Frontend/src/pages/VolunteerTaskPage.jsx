@@ -1,6 +1,5 @@
 import "../styles/VolunteerTaskPage.css";
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import {
   Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper,
@@ -11,41 +10,31 @@ import { listenToAllRequests, updateVolLocation } from "../middleware/firestore/
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WazeLogo from '../assets/waze-icon.png'
 import { getDistance } from 'geolib';
+import { getAuth } from 'firebase/auth';
 
 const VolunteerTaskPage = () => {
   const [tasks, setTasks] = useState([]);
+
   const [chosenTask, setChosenTask] = useState(null);
   const [isAscending, setIsAscending] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { uid } = useLocation().state;
   const [currentLocation, setCurrentLocation] = useState('');
-  
+
   const locationSuccessCb = (currentLocation) => {
     setCurrentLocation(
       `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
     );
   };
 
-  const computeDistance = (task) => {
-    if (!currentLocation || !task.location) return '-';
-    const currentLocationArr = currentLocation.split(',');
-    const taskLocationArr = task.location.split(',');
-    const distance = getDistance(
-      { latitude: currentLocationArr[0], longitude: currentLocationArr[1] },
-      { latitude: taskLocationArr[0], longitude: taskLocationArr[1] }
-    )
-    return parseInt(distance / 1000);
-  }
-
   const locationFailedCb = (error) => {
-    debugger; // TODO: Throw Snack
+    //debugger; // TODO: Throw Snack
     setCurrentLocation("");
   };
 
   useEffect(() => {
     (async() => {
       tasks.forEach(task => {
-        if (task?.volUid === uid) {
+        if (task?.volUid === getAuth().currentUser.uid) {
           updateVolLocation(task.id,currentLocation);
         }
       })
@@ -107,7 +96,10 @@ const VolunteerTaskPage = () => {
   };
 
   const sortTasksByDistance = () => {
-    const sortedTasks = [...tasks].sort((a, b) => {
+    const sortedTasks = [...tasks].map(task => ({
+      ...task,
+      distance: computeDistance(task) // Calculate distance for each task
+    })).sort((a, b) => {
       if (isAscending) {
         return a.distance - b.distance;
       } else {
@@ -116,6 +108,17 @@ const VolunteerTaskPage = () => {
     });
     setTasks(sortedTasks);
     setIsAscending(!isAscending); // Toggle sorting order
+  };
+
+  const computeDistance = (task) => {
+    if (!currentLocation || !task.location) return '-';
+    const currentLocationArr = currentLocation.split(',');
+    const taskLocationArr = task.location.split(',');
+    const distance = getDistance(
+        { latitude: currentLocationArr[0], longitude: currentLocationArr[1] },
+        { latitude: taskLocationArr[0], longitude: taskLocationArr[1] }
+    );
+    return parseInt(distance / 1000);
   };
 
   return (
@@ -128,7 +131,7 @@ const VolunteerTaskPage = () => {
               מיין לפי מרחק
             </Button>
           </div>
-          <VolunteerMenuList uid={uid} />
+          <VolunteerMenuList />
         </div>
       </div>
 
@@ -173,7 +176,6 @@ const VolunteerTaskPage = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onStatusChange={handleTaskStatusChange}
-        volUid={uid}
         location = {currentLocation}
       />
     </div>

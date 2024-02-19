@@ -3,10 +3,11 @@ import { updateDocumentField, deleteFirestoreDocument, uploadImageUpdDoc, delete
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
-import { getAuth, updatePassword } from "firebase/auth";
+import { getAuth, updatePassword, signOut } from "firebase/auth";
 
-const profileHook = (uid) => {
+const profileHook = () => {
   const auth = getAuth();
+  const uid = auth.currentUser.uid;
   const navigate = useNavigate();
 
   ////////////// Upload Avatar //////////////
@@ -201,26 +202,29 @@ const profileHook = (uid) => {
   ////////////// Delete Account //////////////
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
 
-  const confirmDelete = () => {
-    const userDoc = readFirestoreDocument("users", uid);
-    const imgStorage = userDoc.profileImgStorage;
-    if (imgStorage) {
-      deleteFile(imgStorage);
+  const confirmDelete = async () => {
+    try {
+      const userDoc = await readFirestoreDocument("users", uid);
+      const imgStorage = userDoc.profileImgStorage;
+      if (imgStorage) {
+        await deleteFile(imgStorage);
+      }
+      await deleteFirestoreDocument("users", uid);
+      const user = auth.currentUser;
+      if (user) {
+        await user.delete();
+        console.log("User deleted");
+      }
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      // Handle error gracefully, show error message to the user, etc.
+    } finally {
+      closeDeleteConfirmation();
     }
-    deleteFirestoreDocument("users", uid);
-    localStorage.removeItem("loggedInID");
-    closeDeleteConfirmation();
-    let user = auth.currentUser;
-    user?.delete().then(() => {
-      // User deleted.
-      console.log("User deleted");
-    }).catch((error) => {
-      // An error happened.
-      console.log(error);
-    });
-
-    navigate('/');
   };
+
 
 
   const closeDeleteConfirmation = () => {

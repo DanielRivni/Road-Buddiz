@@ -1,12 +1,10 @@
 import "../styles/RequestsPage.css";
 import * as React from "react";
-import { useLocation } from "react-router-dom";
 import RequestsPageTable from "../components/RequestsPageTable";
 import { ClientMenuList } from "../components/Menu";
 import OpenTaskPage from "../components/OpenTasks";
 
 function RequestsPage() {
-  const { uid } = useLocation().state;
 
   return (
     <>
@@ -15,12 +13,12 @@ function RequestsPage() {
           היסטוריית בקשות
         </h1>
         <div id="button-container">
-          <OpenTaskPage uid={uid}/>
-          <ClientMenuList uid={uid} />
+          <OpenTaskPage/>
+          <ClientMenuList/>
         </div>
       </div>
       <div id="requests-page-content">
-        <RequestsPageTable uid={uid}/>
+        <RequestsPageTable/>
       </div>
     </>
   );

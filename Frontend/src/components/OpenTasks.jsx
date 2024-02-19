@@ -9,8 +9,8 @@ import TaskForm from "./TaskForm";
 import StepByStepGuide from "./IssueGuide";
 import OpenTaskHook from "../hooks/OpenTaskStates";
 
-const OpenTaskPage = ({ uid }) => {
-  const { ...rest } = OpenTaskHook(uid);
+const OpenTaskPage = () => {
+  const { ...rest } = OpenTaskHook();
   const services = ["שירות דלק", "החלפת צמיג", "טעינת/החלפת מצבר"];
   const contactUsText = "אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.";
 
@@ -37,12 +37,12 @@ const OpenTaskPage = ({ uid }) => {
               </ListItemButton>
 
               <ListItemButton onClick={() => rest.handleTaskSelection(services[1])}>
-              
+
               <ListItemText primary={services[1]}/>
                 <ListItemIcon>
                   <TireRepair />
                 </ListItemIcon>
-                
+
               </ListItemButton>
 
               <ListItemButton onClick={() => rest.handleTaskSelection(services[2])}>

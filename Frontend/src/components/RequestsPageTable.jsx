@@ -17,9 +17,10 @@ import {
   deleteRequest,
 } from "../middleware/firestore/requests/index.js";
 import TableActionsDialog from "./RequestPageTableActions.jsx";
-import { getUserRole } from "../middleware/firestore/users/index.js";
+import { readFirestoreDocument } from "../middleware/firestore/index.js";
+import { getAuth } from 'firebase/auth';
 
-function RequestsPageTable({ uid }) {
+function RequestsPageTable() {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,11 +29,13 @@ function RequestsPageTable({ uid }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = await getUserRole(uid);
+        const auth = getAuth();
+        const UID = auth.currentUser.uid;
+        const user = await readFirestoreDocument("users", UID)
         if (!user) {
           throw new Error("Failed to get user role");
         }
-        await listenToRelevantRequests(uid, user.userType, setRows);
+        await listenToRelevantRequests(UID, user.userType, setRows);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(error.message);

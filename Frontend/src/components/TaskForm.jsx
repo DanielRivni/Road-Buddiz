@@ -8,7 +8,7 @@ import {
   Box,
 } from "@mui/material";
 import "../styles/TaskForm.css";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 function TaskForm({
   selectedTask,

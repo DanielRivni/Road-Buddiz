@@ -1,8 +1,5 @@
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  setPersistence, browserLocalPersistence } from "firebase/auth";
 
 const auth = getAuth();
 
@@ -32,13 +29,20 @@ export async function craeteNewUserWithEmailAndPassword(email, password) {
 
 export async function signInUserWithEmailAndPassword(email, password) {
   try {
+    // Set local persistence
+    await setPersistence(auth, browserLocalPersistence);
+
+    // Sign in the user with email and password
     const userCredentials = await signInWithEmailAndPassword(
       auth,
       email,
       password
     );
+
+    // Return the user credentials
     return userCredentials;
   } catch (error) {
+    // Handle errors
     const errorCode = error.code;
     const errorMessage = error.message;
     console.error(errorCode, errorMessage);

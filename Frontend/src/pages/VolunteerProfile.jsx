@@ -1,3 +1,4 @@
+import "../styles/Profile.css";
 import React, { useEffect } from 'react';
 import { Card, CardContent, Typography, CardActions, TextField, Box } from '@mui/material';
 import {
@@ -5,16 +6,13 @@ import {
   AccountEditButtons, DeleteButton, UploadAvatar
 } from "../components/Profile";
 import { VolunteerMenuList } from '../components/Menu';
-import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
 import profileHook from '../hooks/profileStates.js';
-import "../styles/Profile.css";
 import { getAuth } from "firebase/auth";
 
 export default function VolunteerProfile() {
-  const { uid } = useLocation().state;
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
-  const { ...rest } = profileHook(uid);
+  const { ...rest } = profileHook();
   const accountErrors = { email: rest.emailError, password: rest.passwordError }
   const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
   const fullName = `${rest.firstname} ${rest.lastname}`;
@@ -23,7 +21,7 @@ export default function VolunteerProfile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDocument = await readFirestoreDocument("users", uid);
+        const userDocument = await readFirestoreDocument("users", auth.currentUser.uid);
         if (!userDocument) {
           console.log("User not found!");
           return;
@@ -53,7 +51,7 @@ export default function VolunteerProfile() {
         <h1 id="title" style={{ color: "#000000" }}>
           פרופיל מתנדב
         </h1>
-        <VolunteerMenuList uid={uid} />
+        <VolunteerMenuList />
       </div>
 
       {/* Page Content */}

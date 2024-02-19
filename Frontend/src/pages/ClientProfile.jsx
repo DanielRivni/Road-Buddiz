@@ -1,3 +1,4 @@
+import "../styles/Profile.css";
 import React, { useEffect } from 'react';
 import { Card, CardContent, Typography, CardActions, TextField, Box } from '@mui/material';
 import {
@@ -5,14 +6,12 @@ import {
 } from "../components/Profile";
 import { ClientMenuList } from '../components/Menu';
 import profileHook from '../hooks/profileStates.js';
-import { useLocation } from 'react-router-dom';
 import { readFirestoreDocument } from "../middleware/firestore";
-import "../styles/Profile.css";
+import { getAuth } from "firebase/auth";
 
 
 export default function ClientProfile() {
-  const { uid } = useLocation().state;
-  const { ...rest } = profileHook(uid);
+  const { ...rest } = profileHook();
   const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
   const accountErrors = { email: rest.emailError, password: rest.passwordError }
   const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
@@ -21,7 +20,8 @@ export default function ClientProfile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDocument = await readFirestoreDocument("users", uid);
+        const auth = getAuth();
+        const userDocument = await readFirestoreDocument("users", auth.currentUser.uid);
         if (!userDocument) {
           console.log("User not found!");
           return;
@@ -51,7 +51,7 @@ export default function ClientProfile() {
         <h1 id="title" style={{ color: "#000000" }}>
           פרופיל לקוח
         </h1>
-        <ClientMenuList uid={uid} />
+        <ClientMenuList />
       </div>
 
       {/* Page Content */}

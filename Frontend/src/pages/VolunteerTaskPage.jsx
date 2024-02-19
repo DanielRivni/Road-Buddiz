@@ -1,6 +1,5 @@
 import "../styles/VolunteerTaskPage.css";
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import {
   Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper,
@@ -15,7 +14,6 @@ const VolunteerTaskPage = () => {
   const [chosenTask, setChosenTask] = useState(null);
   const [isAscending, setIsAscending] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { uid } = useLocation().state;
 
   useEffect(() => {
     const handleRequests = async (requests) => {
@@ -84,7 +82,7 @@ const VolunteerTaskPage = () => {
     <div className="task-selection-page">
       <div className="header-container">
         <Typography variant="h3">בחירת משימות</Typography>
-        <VolunteerMenuList uid={uid} />
+        <VolunteerMenuList />
       </div>
 
       <div className="sort-button-container">
@@ -124,7 +122,6 @@ const VolunteerTaskPage = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onStatusChange={handleTaskStatusChange}
-        volUid={uid}
       />
     </div>
   );

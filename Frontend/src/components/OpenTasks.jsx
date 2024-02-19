@@ -9,8 +9,8 @@ import TaskForm from "./TaskForm";
 import StepByStepGuide from "./IssueGuide";
 import OpenTaskHook from "../hooks/OpenTaskStates";
 
-const OpenTaskPage = ({ uid }) => {
-  const { ...rest } = OpenTaskHook(uid);
+const OpenTaskPage = () => {
+  const { ...rest } = OpenTaskHook();
   const services = ["שירות דלק", "החלפת צמיג", "טעינת/החלפת מצבר"];
   const contactUsText = "אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.";
 

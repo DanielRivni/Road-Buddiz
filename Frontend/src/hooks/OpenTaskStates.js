@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { GetGuide, uploadRequest } from '../middleware/firestore/requests';
+import { getAuth } from 'firebase/auth';
 
-const OpenTaskHook = (uid) => {
+const OpenTaskHook = () => {
   // Dialog States
   const [taskState, setTaskState] = useState({
     selectedTask: null,
@@ -76,9 +77,10 @@ const OpenTaskHook = (uid) => {
   };
 
   const handleFormSubmit = async (event) => {
+    const auth = getAuth();
     event.preventDefault();
     const { description, additionalDetails, image, locationString } = taskDetails;
-    await uploadRequest(uid, description, additionalDetails, taskState.selectedTask, locationString);
+    await uploadRequest(auth.currentUser.uid, description, additionalDetails, taskState.selectedTask, locationString);
     handleExit();
   };
 

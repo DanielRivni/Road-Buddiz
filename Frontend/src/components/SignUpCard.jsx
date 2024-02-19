@@ -1,16 +1,8 @@
 import "../styles/SignUpPage.css";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import MenuItem from "@mui/material/MenuItem";
+import {
+  Card, CardContent, CardActions, Typography, TextField, Button,
+  Select, MenuItem, FormControlLabel, Checkbox, Snackbar, Alert
+} from "@mui/material";
 import { useState } from "react";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
 import { addUserToFirestore } from "../middleware/firestore/users/index.js";
@@ -53,26 +45,26 @@ function SignUpCard() {
       return;
     }
 
-      const userCredentials = await craeteNewUserWithEmailAndPassword(
-        email,
-        password
+    const userCredentials = await craeteNewUserWithEmailAndPassword(
+      email,
+      password
+    );
+    if (userCredentials) {
+      const added = await addUserToFirestore(
+        {
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          userType,
+        },
+        userCredentials?.user?.uid
       );
-      if (userCredentials) {
-        const added = await addUserToFirestore(
-          {
-            firstName,
-            lastName,
-            email,
-            phoneNumber,
-            userType,
-          },
-          userCredentials?.user?.uid
-        );
-        if (added) {
-          setOpenSuccessSnackbar(true);
-          navigate("/", { state: { openSuccessSnackbar: true } });
-        }
+      if (added) {
+        setOpenSuccessSnackbar(true);
+        navigate("/", { state: { openSuccessSnackbar: true } });
       }
+    }
   };
 
   const handleFirstNameChange = (event) => {
@@ -172,8 +164,8 @@ function SignUpCard() {
                   formErrors.email
                     ? "שדה חובה"
                     : emailError
-                    ? "אימייל לא תקין"
-                    : ""
+                      ? "אימייל לא תקין"
+                      : ""
                 }
                 className="signup-page-inputs"
                 variant="outlined"
@@ -214,8 +206,8 @@ function SignUpCard() {
                 formErrors.password
                   ? "שדה חובה"
                   : password && password.length < 8
-                  ? "הסיסמה חייבת להיות לפחות 8 תווים"
-                  : ""
+                    ? "הסיסמה חייבת להיות לפחות 8 תווים"
+                    : ""
               }
               onChange={handlePasswordChange}
               onKeyDown={handleKeyPress}
@@ -258,19 +250,19 @@ function SignUpCard() {
       </div>
 
       <Snackbar
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            open={openSuccessSnackbar}
-            autoHideDuration={6000}
-            onClose={handleCloseSuccessSnackbar}
-          >
-            <Alert
-              onClose={handleCloseSuccessSnackbar}
-              severity="success"
-              sx={{ width: "100%" }}
-            >
-            <div style={{ marginRight: "10px" ,marginLeft: "10px"}}>הרשמה בוצעה בהצלחה!</div>
-            </Alert>
-          </Snackbar>      
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={openSuccessSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSuccessSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSuccessSnackbar}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          <div style={{ marginRight: "10px", marginLeft: "10px" }}>הרשמה בוצעה בהצלחה!</div>
+        </Alert>
+      </Snackbar>
     </>
   );
 }

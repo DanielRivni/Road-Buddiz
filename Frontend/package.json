@@ -16,9 +16,12 @@
     "@mui/icons-material": "^5.15.5",
     "@mui/material": "^5.15.5",
     "firebase": "^10.7.2",
+    "geolib": "^3.3.4",
+    "leaflet": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-image-crop": "^11.0.5",
+    "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.21.3"
   },
   "devDependencies": {

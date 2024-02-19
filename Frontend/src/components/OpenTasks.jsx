@@ -37,12 +37,12 @@ const OpenTaskPage = () => {
               </ListItemButton>
 
               <ListItemButton onClick={() => rest.handleTaskSelection(services[1])}>
-              
+
               <ListItemText primary={services[1]}/>
                 <ListItemIcon>
                   <TireRepair />
                 </ListItemIcon>
-                
+
               </ListItemButton>
 
               <ListItemButton onClick={() => rest.handleTaskSelection(services[2])}>

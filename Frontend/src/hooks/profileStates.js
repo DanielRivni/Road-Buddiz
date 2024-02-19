@@ -4,6 +4,7 @@ import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
 import { getAuth, updatePassword, signOut } from "firebase/auth";
+import { getClosedRequestsByVol } from "../middleware/firestore/requests";
 
 const profileHook = () => {
   const auth = getAuth();
@@ -38,6 +39,7 @@ const profileHook = () => {
   const [editedFirstname, setEditedFirstname] = useState("");
   const [editedLastname, setEditedLastname] = useState("");
   const [editedPhone, setEditedPhone] = useState("");
+  const [closedTasksCount, setClosedTasksCount] = useState(0);
   //error states
   const [firstnameError, setFirstnameError] = useState(false);
   const [lastnameError, setLastnameError] = useState(false);
@@ -242,6 +244,9 @@ const profileHook = () => {
         const downloadURL = await getDownloadURL(ref(storage, profileImage));
         setImg(downloadURL);
       }
+      const closedTasks = await getClosedRequestsByVol(uid);
+      console.log(closedTasks.length);
+      setClosedTasksCount(closedTasks.length);
     } catch (error) {
       console.log(error);
     }
@@ -267,6 +272,7 @@ const profileHook = () => {
     editedPassword,
     editingAccount,
     deleteConfirmation,
+    closedTasksCount,
     handleImgChange,
     handleImageRemove,
     initProfile,

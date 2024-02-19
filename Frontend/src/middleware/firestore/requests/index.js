@@ -147,6 +147,19 @@ export const updateVolLocation = async (requestId, location) => {
   }
 };
 
+export const getClosedRequestsByVol = async (volUid) => {
+  try {
+    const requests = await getDocumentsByQuery("requests", {
+      fieldName: "volUid",
+      operation: "==",
+      value: volUid,
+    });
+    return requests.filter((request) => request.status === "נסגר");
+  } catch (error) {
+    console.error("Error at getClosedRequestsByVol", error);
+  }
+}
+
 
 export const cancelRequestAssignment = async (requestId) => {
   try {

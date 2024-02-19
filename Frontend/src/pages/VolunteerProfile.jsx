@@ -16,6 +16,7 @@ export default function VolunteerProfile() {
   const accountErrors = { email: rest.emailError, password: rest.passwordError }
   const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
   const fullName = `${rest.firstname} ${rest.lastname}`;
+  const closedTasksCount = rest.closedTasksCount;
   const auth = getAuth();
 
   useEffect(() => {
@@ -116,7 +117,7 @@ export default function VolunteerProfile() {
                   תאריך הצטרפות: {new Date(auth.currentUser.metadata.creationTime).toLocaleDateString()}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
-                  כמות סיועים: 0
+                  כמות סיועים: {closedTasksCount}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom >
                   מספר מתנדב: 666

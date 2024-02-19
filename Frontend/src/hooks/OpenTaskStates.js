@@ -6,7 +6,8 @@ const OpenTaskHook = () => {
   // Dialog States
   const [taskState, setTaskState] = useState({
     selectedTask: null,
-    chooseTaskDialogOpen: false,
+    dialogOpen: false,
+    chooseTask: false,
     formDialogOpen: false,
     guideOpen: false
   });
@@ -14,7 +15,8 @@ const OpenTaskHook = () => {
   const handleDialogOpen = () => {
     setTaskState({
       ...taskState,
-      chooseTaskDialogOpen: true
+      dialogOpen: true,
+      chooseTask: true
     });
   };
 
@@ -23,7 +25,7 @@ const OpenTaskHook = () => {
       ...taskState,
       selectedTask: task,
       guideOpen: true,
-      chooseTaskDialogOpen: false
+      chooseTask: false
     });
     const steps = await GetGuide(task);
     if (steps.length === 0) {
@@ -84,11 +86,12 @@ const OpenTaskHook = () => {
   };
 
   // Exit
-  const handleExit = () => {
+  const handleDialogExit = () => {
     setTaskState({
       ...taskState,
       selectedTask: null,
-      chooseTaskDialogOpen: false,
+      dialogOpen: false,
+      chooseTask: false,
       formDialogOpen: false,
       guideOpen: false
     });
@@ -109,7 +112,7 @@ const OpenTaskHook = () => {
     handleFormSubmit,
     handleDialogOpen,
     handleTaskSelection,
-    handleExit,
+    handleDialogExit,
     handleGuideContinue
   };
 }

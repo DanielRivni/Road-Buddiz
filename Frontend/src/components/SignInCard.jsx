@@ -52,8 +52,6 @@ function SignInCard() {
         } catch (error) {
           console.error("Error fetching user role:", error);
         }
-      } else {
-        console.log("No user is signed in");
       }
     });
 

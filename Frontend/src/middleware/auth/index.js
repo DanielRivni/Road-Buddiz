@@ -45,11 +45,8 @@ export async function signInUserWithEmailAndPassword(email, password) {
     );
 
     // Return the user credentials
-
-    // Return the user credentials
     return userCredentials;
   } catch (error) {
-    // Handle errors
     // Handle errors
     const errorCode = error.code;
     const errorMessage = error.message;

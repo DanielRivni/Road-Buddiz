@@ -78,9 +78,14 @@ const VolunteerTaskPage = () => {
   }, []);
 
   const handleTaskSelect = (task) => {
-    setChosenTask(task);
+    const taskWithDistance = {
+      ...task,
+      distance: computeDistance(task)
+    };
+    setChosenTask(taskWithDistance);
     setIsModalOpen(true);
   };
+  
 
   // Function to handle status change of the task
   const handleTaskStatusChange = (taskId, newStatus) => {

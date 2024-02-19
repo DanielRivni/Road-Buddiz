@@ -9,12 +9,10 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CancelIcon from "@mui/icons-material/Cancel";
 import VolLocationDialog from './VolLocationDialog.jsx'
 import '../styles/RequestsPage.css';
-import { useState } from "react";
 
 const TableActionsDialog = ({
   uid,

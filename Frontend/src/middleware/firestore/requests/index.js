@@ -136,11 +136,24 @@ export const assignRequest = async (requestId, volUid) => {
   }
 };
 
+export const updateVolLocation = async (requestId, location) => {
+  try {
+    const update = {
+      volLocation: location ? location : ''
+    };
+    await updateDocumentField("requests", requestId, update);
+  } catch (error) {
+    console.error("Error at updateRequest", error);
+  }
+};
+
+
 export const cancelRequestAssignment = async (requestId) => {
   try {
     const update = {
       status: "מחכה לסיוע",
       volUid: "",
+      volLocation: ""
     };
     await updateDocumentField("requests", requestId, update);
   } catch (error) {

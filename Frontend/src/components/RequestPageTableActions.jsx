@@ -12,6 +12,8 @@ import {
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CancelIcon from "@mui/icons-material/Cancel";
+import VolLocationDialog from './VolLocationDialog.jsx'
+import '../styles/RequestsPage.css';
 import { useState } from "react";
 
 const TableActionsDialog = ({
@@ -19,8 +21,13 @@ const TableActionsDialog = ({
   handleDeleteRequest,
   isActiveTask,
   status,
+  volLocation
 }) => {
   const [tableActionsDialogState, setTableActionsDialogState] = useState(false);
+
+  const handleTableActionsDialogClose = () => {
+    setTableActionsDialogState(false)
+  }
 
   return (
     <>
@@ -34,31 +41,22 @@ const TableActionsDialog = ({
         >
           <SettingsIcon />
         </Button>
-        <Dialog open={tableActionsDialogState}>
+        <Dialog open={tableActionsDialogState} onClose={handleTableActionsDialogClose}>
           <DialogTitle>פעולות נוספות</DialogTitle>
           <DialogContent>
             <List className="openTask-task-list">
-              <ListItemButton
-                onClick={() => {
-                  console.log("Clicked on location");
-                }}
-              >
-                <ListItemText primary={"מיקום מתנדב"} />
-                <ListItemIcon>
-                  <LocationOnIcon />
-                </ListItemIcon>
-              </ListItemButton>
-
+              <VolLocationDialog volLocation={volLocation}/>
               <ListItemButton
                 onClick={() => handleDeleteRequest(uid)}
                 disabled={!isActiveTask(status)}
+                sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '2em'}}
                 style={{
                   backgroundColor: isActiveTask(status) ? "#FF3333  " : "",
                   color: isActiveTask(status) ? "white" : "primary",
                 }}
               >
                 <ListItemText primary={"ביטול סיוע"} />
-                <ListItemIcon>
+                <ListItemIcon sx={{minWidth: '0', color: 'white'}}>
                   <CancelIcon />
                 </ListItemIcon>
               </ListItemButton>

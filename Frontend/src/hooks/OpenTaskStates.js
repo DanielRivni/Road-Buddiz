@@ -68,7 +68,6 @@ const OpenTaskHook = (uid) => {
   };
 
   const handleFormLocationChange = (locationString) => {
-    debugger
     setTaskDetails((prevDetails) => ({
       ...prevDetails,
       locationString

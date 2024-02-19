@@ -7,21 +7,55 @@ import {
 } from "@mui/material";
 import VolunteerTasksDialog from "../components/VolunteerTasksDialog";
 import { VolunteerMenuList } from "../components/Menu";
-import { listenToAllRequests } from "../middleware/firestore/requests";
+import { listenToAllRequests, updateVolLocation } from "../middleware/firestore/requests";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WazeLogo from '../assets/waze-icon.png'
+import { getDistance } from 'geolib';
 
 const VolunteerTaskPage = () => {
   const [tasks, setTasks] = useState([]);
-
   const [chosenTask, setChosenTask] = useState(null);
   const [isAscending, setIsAscending] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { uid } = useLocation().state;
+  const [currentLocation, setCurrentLocation] = useState('');
+  
+  const locationSuccessCb = (currentLocation) => {
+    setCurrentLocation(
+      `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+    );
+  };
+
+  const computeDistance = (task) => {
+    if (!currentLocation || !task.location) return '-';
+    const currentLocationArr = currentLocation.split(',');
+    const taskLocationArr = task.location.split(',');
+    const distance = getDistance(
+      { latitude: currentLocationArr[0], longitude: currentLocationArr[1] },
+      { latitude: taskLocationArr[0], longitude: taskLocationArr[1] }
+    )
+    return parseInt(distance / 1000);
+  }
+
+  const locationFailedCb = (error) => {
+    debugger; // TODO: Throw Snack
+    setCurrentLocation("");
+  };
+
+  useEffect(() => {
+    (async() => {
+      tasks.forEach(task => {
+        if (task?.volUid === uid) {
+          updateVolLocation(task.id,currentLocation);
+        }
+      })
+    })()
+  },[currentLocation])
 
   useEffect(() => {
     const handleRequests = async (requests) => {
       try {
-        const updatedTasks = requests.map(({ id, data }) =>
-          createTask(data.task, data.status, getRandomNumber(), id));
+        const updatedTasks = requests.map(({ id, data }) => ({id, name: data.task, status: data.status, location: data.locationString, volUid: data.volUid}));
         setTasks(updatedTasks);
       } catch (error) {
         console.error("Error handling requests:", error);
@@ -39,12 +73,20 @@ const VolunteerTaskPage = () => {
       }
     };
 
+    const getLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        locationSuccessCb,
+        locationFailedCb
+      );
+    }
+
+    getLocation();
+    setInterval(() => {
+      getLocation();
+    }, 2000)
+
     fetchData();
   }, []);
-
-  function getRandomNumber() {
-    return Math.floor(Math.random() * 1000) + 1;
-  }
 
   const handleTaskSelect = (task) => {
     setChosenTask(task);
@@ -64,10 +106,6 @@ const VolunteerTaskPage = () => {
     setIsModalOpen(false);
   };
 
-  function createTask(name, status, distance, id = Math.random().toString(36).slice(2, 11)) {
-    return { id, name, status, distance, };
-  }
-
   const sortTasksByDistance = () => {
     const sortedTasks = [...tasks].sort((a, b) => {
       if (isAscending) {
@@ -84,24 +122,27 @@ const VolunteerTaskPage = () => {
     <div className="task-selection-page">
       <div className="header-container">
         <Typography variant="h3">בחירת משימות</Typography>
-        <VolunteerMenuList uid={uid} />
+        <div className="center">
+          <div className="sort-button-container">
+            <Button variant="contained" onClick={sortTasksByDistance}>
+              מיין לפי מרחק
+            </Button>
+          </div>
+          <VolunteerMenuList uid={uid} />
+        </div>
       </div>
 
-      <div className="sort-button-container">
-        <Button variant="contained" onClick={sortTasksByDistance}>
-          מיין לפי מרחק
-        </Button>
-      </div>
 
       <div className="task-list">
         <Paper>
           <TableContainer>
             <Table>
-              <TableHead>
+              <TableHead sx={{textAlign: 'center'}}>
                 <TableRow>
                   <TableCell>שם</TableCell>
                   <TableCell>סטטוס</TableCell>
-                  <TableCell>מרחק (קמ)</TableCell>
+                  <TableCell>מיקום</TableCell>
+                  <TableCell>מרחק</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -110,7 +151,15 @@ const VolunteerTaskPage = () => {
                   <TableRow onClick={() => handleTaskSelect(task)} key={task.id}>
                     <TableCell >{task.name}</TableCell>
                     <TableCell >{task.status}</TableCell>
-                    <TableCell >{task.distance}</TableCell>
+                    <TableCell sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '1em'}}>
+                      <a href={`https://www.google.com/maps/place/${task.location}`} target="_blank" rel="noopener noreferrer">
+                        <LocationOnIcon/>
+                      </a>
+                      <a href={`https://waze.com/ul?ll=${task.location}&z=10`} target="_blank" rel="noopener noreferrer">
+                        <img src={WazeLogo} alt="waze-icon" className="waze-logo"/>
+                      </a>
+                    </TableCell>
+                    <TableCell >{computeDistance(task)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -125,6 +174,7 @@ const VolunteerTaskPage = () => {
         onClose={handleCloseModal}
         onStatusChange={handleTaskStatusChange}
         volUid={uid}
+        location = {currentLocation}
       />
     </div>
   );

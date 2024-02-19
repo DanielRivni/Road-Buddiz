@@ -5,12 +5,11 @@
 .header-container {
   display: flex;
   justify-content: space-between;
-  text-align: right;
+  margin: 0 0 1em 0;
 }
 
 .sort-button-container {
   text-align: left;
-  margin-bottom: 15px;
 }
 
 .task-list {
@@ -20,11 +19,22 @@
 
 .task-list th,
 .task-list td {
-  text-align: right;
-  width: 100px;
+  text-align: center;
 }
 
 .task-selection-menu {
   padding: 10px;
   align-content: left;
+}
+
+.center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.waze-logo {
+  max-width: 25px;
+  object-fit: contain;
 }

@@ -136,6 +136,7 @@ function RequestsPageTable({ uid }) {
                       handleDeleteRequest={handleDeleteRequest}
                       isActiveTask={isActiveTask}
                       status={row.status}
+                      volLocation={row.volLocation}
                     />
                   </TableCell>
                 </TableRow>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   AppBar,
@@ -11,6 +11,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { assignRequest, cancelRequestAssignment } from "../middleware/firestore/requests";
 
 const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange, volUid }) => {
+
   const handleStatusChange = (newStatus) => {
     onStatusChange(task.id, newStatus);
   };

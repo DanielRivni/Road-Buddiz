@@ -7,9 +7,12 @@ import { useState } from "react";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
 import { addUserToFirestore } from "../middleware/firestore/users/index.js";
 import { useNavigate } from "react-router-dom";
+import {getDocumentsByQuery} from "../middleware/firestore/index.js";
 
 function SignUpCard() {
   const navigate = useNavigate();
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,7 +28,6 @@ function SignUpCard() {
     userType: false,
     password: false,
   });
-  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
 
   const registerUser = async () => {
     const fields = {
@@ -36,14 +38,24 @@ function SignUpCard() {
       userType,
       password,
     };
+
     const errors = Object.entries(fields).reduce((acc, [key, value]) => {
       if (!value) acc[key] = true;
       return acc;
     }, {});
+
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
+
+    // Check if email or phone number is already in use
+    try {
+      const userExists = await checkUserExists(email, phoneNumber);
+      if (userExists) {
+        setOpenErrorSnackbar(true);
+        return;
+      }    
 
     const userCredentials = await craeteNewUserWithEmailAndPassword(
       email,
@@ -65,7 +77,35 @@ function SignUpCard() {
         navigate("/", { state: { openSuccessSnackbar: true } });
       }
     }
+   } catch (error) {
+      console.error("Error registering user:", error);
+    }
   };
+
+  // Function to check if email or phone number already exists
+  const checkUserExists = async (email, phoneNumber) => {
+    try {
+      const emailExists = await getDocumentsByQuery("users", {
+        fieldName: "email",
+        operation: "==",
+        value: email
+      });
+      const phoneNumberExists = await getDocumentsByQuery("users", {
+        fieldName: "phoneNumber",
+        operation: "==",
+        value: phoneNumber
+      });
+
+      return emailExists.length > 0 || phoneNumberExists.length > 0;
+    } catch (error) {
+      console.error("Error checking user existence:", error);
+      setOpenErrorSnackbar(true);
+      // Return true to prevent unintended registration attempts
+      return true;
+    }
+  };
+
+
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -120,7 +160,9 @@ function SignUpCard() {
     setOpenSuccessSnackbar(false);
   };
 
-
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
+  };
 
   return (
     <>
@@ -263,6 +305,23 @@ function SignUpCard() {
           <div style={{ marginRight: "10px", marginLeft: "10px" }}>הרשמה בוצעה בהצלחה!</div>
         </Alert>
       </Snackbar>
+
+      <Snackbar
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      open={openErrorSnackbar}
+      autoHideDuration={6000}
+      onClose={handleCloseErrorSnackbar} 
+    >
+      <Alert
+        onClose={handleCloseErrorSnackbar}
+        severity="error"
+        sx={{ width: "100%" }}
+      >
+        <div style={{ marginRight: "10px", marginLeft: "10px" }}>
+          כתובת האימייל או מספר הטלפון כבר קיימים במערכת
+        </div>
+      </Alert>
+    </Snackbar>     
     </>
   );
 }

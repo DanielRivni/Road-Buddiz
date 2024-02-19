@@ -20,6 +20,8 @@ function SignInCard() {
   const [formError, setFormError] = useState(false);
   const location = useLocation();
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+
 
   useEffect(() => {
     if (location.state && location.state.openSuccessSnackbar) {
@@ -33,6 +35,10 @@ function SignInCard() {
     }
 
     setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
   };
 
   // Auto sign in user if already signed in
@@ -66,6 +72,7 @@ function SignInCard() {
       const userCredentials = await signInUserWithEmailAndPassword(email, password);
       if (!userCredentials) {
         console.error("User Not Found");
+        setOpenErrorSnackbar(true);
         return;
       }
 
@@ -216,6 +223,23 @@ function SignInCard() {
         >
           <div style={{ marginRight: "10px", marginLeft: "10px" }}>
             הרשמה בוצעה בהצלחה!
+          </div>
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={openErrorSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseErrorSnackbar}
+      >
+        <Alert
+          onClose={handleCloseErrorSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          <div style={{ marginRight: "10px", marginLeft: "10px" }}>
+            אימייל או סיסמה שגויים
           </div>
         </Alert>
       </Snackbar>

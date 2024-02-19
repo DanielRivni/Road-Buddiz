@@ -9,7 +9,6 @@ import {
   Snackbar,
   TableRow,
   Paper,
-  Button,
   Alert,
 } from "@mui/material";
 import {
@@ -18,7 +17,7 @@ import {
 } from "../middleware/firestore/requests/index.js";
 import TableActionsDialog from "./RequestPageTableActions.jsx";
 import { readFirestoreDocument } from "../middleware/firestore/index.js";
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 function RequestsPageTable() {
   const [rows, setRows] = useState([]);
@@ -30,12 +29,20 @@ function RequestsPageTable() {
     const fetchData = async () => {
       try {
         const auth = getAuth();
-        const UID = auth.currentUser.uid;
-        const user = await readFirestoreDocument("users", UID)
-        if (!user) {
-          throw new Error("Failed to get user role");
-        }
-        await listenToRelevantRequests(UID, user.userType, setRows);
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const UID = user.uid;
+            const userData = await readFirestoreDocument("users", UID);
+            if (!userData) {
+              throw new Error("Failed to get user role");
+            }
+            await listenToRelevantRequests(UID, userData.userType, setRows);
+          } else {
+            // Handle case where there's no authenticated user
+            throw new Error("No authenticated user");
+          }
+        });
+        return () => unsubscribe(); // Cleanup function
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(error.message);

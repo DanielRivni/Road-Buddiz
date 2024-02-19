@@ -6,8 +6,10 @@ import {
   Box,
   IconButton,
   Button,
+  Snackbar,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import MuiAlert from '@mui/material/Alert';
 import {
   assignRequest,
   cancelRequestAssignment,
@@ -18,6 +20,8 @@ import { readFirestoreDocument } from "../middleware/firestore";
 const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
   const [taskDetails, setTaskDetails] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     const fetchTaskDetails = async () => {
@@ -41,17 +45,35 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
 
   const handleChooseTask = async () => {
     const volUid = getAuth().currentUser.uid;
+    
+    if (taskDetails.status !== "מחכה לסיוע") {
+      setSnackbarOpen(true);
+      setSnackbarMessage("המשימה כבר נבחרה ע\"י מתנדב אחר");
+      return;
+    }
+    
+    // Update the status and assign the task
     handleStatusChange("בטיפול");
     await assignRequest(task.id, volUid);
     onClose();
   };
 
   const handleUnchooseTask = async () => {
+    const volUid = getAuth().currentUser.uid;
+    if (taskDetails.volUid !== volUid) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("אינך מורשה לבטל סיוע למשימה זו");
+      return;
+    }
+
     handleStatusChange("מחכה לסיוע");
     await cancelRequestAssignment(task.id);
     onClose();
   };
-  
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
@@ -100,6 +122,21 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
           </Button>
         </Box>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position at the top center
+      >
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity="warning"
+          elevation={6}
+          variant="filled"
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
     </Dialog>
   );
 };

@@ -1,16 +1,26 @@
 import "../styles/VolunteerTaskPage.css";
 import React, { useState, useEffect } from "react";
 import {
-  Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
 import VolunteerTasksDialog from "../components/VolunteerTasksDialog";
 import { VolunteerMenuList } from "../components/Menu";
-import { listenToAllRequests, updateVolLocation } from "../middleware/firestore/requests";
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import WazeLogo from '../assets/waze-icon.png'
-import { getDistance } from 'geolib';
-import { getAuth } from 'firebase/auth';
+import {
+  listenToAllRequests,
+  updateVolLocation,
+} from "../middleware/firestore/requests";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import WazeLogo from "../assets/waze-icon.png";
+import { getDistance } from "geolib";
+import { getAuth } from "firebase/auth";
 
 const VolunteerTaskPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -18,11 +28,11 @@ const VolunteerTaskPage = () => {
   const [chosenTask, setChosenTask] = useState(null);
   const [isAscending, setIsAscending] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState('');
+  const [currentLocation, setCurrentLocation] = useState("");
 
-  const locationSuccessCb = (currentLocation) => {
+  const locationSuccessCb = (currLocation) => {
     setCurrentLocation(
-      `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+      `${currLocation.coords.latitude},${currLocation.coords.longitude}`
     );
   };
 
@@ -32,26 +42,32 @@ const VolunteerTaskPage = () => {
   };
 
   useEffect(() => {
-    (async() => {
-      tasks.forEach(task => {
+    async function handleCurrentLocationChange() {
+      tasks.forEach(async (task) => {
         if (task?.volUid === getAuth().currentUser.uid) {
-          updateVolLocation(task.id,currentLocation);
+          await updateVolLocation(task.id, currentLocation);
         }
-      })
-    })()
-  },[currentLocation])
+      });
+    }
+    handleCurrentLocationChange();
+  }, [currentLocation]);
 
   useEffect(() => {
     const handleRequests = async (requests) => {
       try {
-        const updatedTasks = requests.map(({ id, data }) => ({id, name: data.task, status: data.status, location: data.locationString, volUid: data.volUid}));
+        const updatedTasks = requests.map(({ id, data }) => ({
+          id,
+          name: data.task,
+          status: data.status,
+          location: data.locationString,
+          volUid: data.volUid,
+        }));
         setTasks(updatedTasks);
       } catch (error) {
         console.error("Error handling requests:", error);
         setError(error.message);
       }
     };
-
 
     const fetchData = async () => {
       try {
@@ -67,25 +83,25 @@ const VolunteerTaskPage = () => {
         locationSuccessCb,
         locationFailedCb
       );
-    }
+    };
 
     getLocation();
-    setInterval(() => {
+    const locationInterval = setInterval(() => {
       getLocation();
-    }, 2000)
+    }, 5000);
 
     fetchData();
+    return () => clearInterval(locationInterval);
   }, []);
 
   const handleTaskSelect = (task) => {
     const taskWithDistance = {
       ...task,
-      distance: computeDistance(task)
+      distance: computeDistance(task),
     };
     setChosenTask(taskWithDistance);
     setIsModalOpen(true);
   };
-  
 
   // Function to handle status change of the task
   const handleTaskStatusChange = (taskId, newStatus) => {
@@ -101,27 +117,29 @@ const VolunteerTaskPage = () => {
   };
 
   const sortTasksByDistance = () => {
-    const sortedTasks = [...tasks].map(task => ({
-      ...task,
-      distance: computeDistance(task) // Calculate distance for each task
-    })).sort((a, b) => {
-      if (isAscending) {
-        return a.distance - b.distance;
-      } else {
-        return b.distance - a.distance;
-      }
-    });
+    const sortedTasks = [...tasks]
+      .map((task) => ({
+        ...task,
+        distance: computeDistance(task), // Calculate distance for each task
+      }))
+      .sort((a, b) => {
+        if (isAscending) {
+          return a.distance - b.distance;
+        } else {
+          return b.distance - a.distance;
+        }
+      });
     setTasks(sortedTasks);
     setIsAscending(!isAscending); // Toggle sorting order
   };
 
   const computeDistance = (task) => {
-    if (!currentLocation || !task.location) return '-';
-    const currentLocationArr = currentLocation.split(',');
-    const taskLocationArr = task.location.split(',');
+    if (!currentLocation || !task.location) return "-";
+    const currentLocationArr = currentLocation.split(",");
+    const taskLocationArr = task.location.split(",");
     const distance = getDistance(
-        { latitude: currentLocationArr[0], longitude: currentLocationArr[1] },
-        { latitude: taskLocationArr[0], longitude: taskLocationArr[1] }
+      { latitude: currentLocationArr[0], longitude: currentLocationArr[1] },
+      { latitude: taskLocationArr[0], longitude: taskLocationArr[1] }
     );
     return parseInt(distance / 1000);
   };
@@ -140,12 +158,11 @@ const VolunteerTaskPage = () => {
         </div>
       </div>
 
-
       <div className="task-list">
         <Paper>
           <TableContainer>
             <Table>
-              <TableHead sx={{textAlign: 'center'}}>
+              <TableHead sx={{ textAlign: "center" }}>
                 <TableRow>
                   <TableCell>שם</TableCell>
                   <TableCell>סטטוס</TableCell>
@@ -156,18 +173,41 @@ const VolunteerTaskPage = () => {
 
               <TableBody>
                 {tasks.map((task) => (
-                  <TableRow onClick={() => handleTaskSelect(task)} key={task.id}>
-                    <TableCell >{task.name}</TableCell>
-                    <TableCell >{task.status}</TableCell>
-                    <TableCell sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '1em'}}>
-                      <a href={`https://www.google.com/maps/place/${task.location}`} target="_blank" rel="noopener noreferrer">
-                        <LocationOnIcon/>
+                  <TableRow
+                    onClick={() => handleTaskSelect(task)}
+                    key={task.id}
+                  >
+                    <TableCell>{task.name}</TableCell>
+                    <TableCell>{task.status}</TableCell>
+                    <TableCell
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "1em",
+                      }}
+                    >
+                      <a
+                        href={`https://www.google.com/maps/place/${task.location}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <LocationOnIcon />
                       </a>
-                      <a href={`https://waze.com/ul?ll=${task.location}&z=10`} target="_blank" rel="noopener noreferrer">
-                        <img src={WazeLogo} alt="waze-icon" className="waze-logo"/>
+                      <a
+                        href={`https://waze.com/ul?ll=${task.location}&z=10`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          src={WazeLogo}
+                          alt="waze-icon"
+                          className="waze-logo"
+                        />
                       </a>
                     </TableCell>
-                    <TableCell >{computeDistance(task)}</TableCell>
+                    <TableCell>{computeDistance(task)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -181,7 +221,7 @@ const VolunteerTaskPage = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onStatusChange={handleTaskStatusChange}
-        location = {currentLocation}
+        location={currentLocation}
       />
     </div>
   );

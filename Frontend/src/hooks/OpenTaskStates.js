@@ -82,7 +82,7 @@ const OpenTaskHook = () => {
     event.preventDefault();
     const { description, additionalDetails, image, locationString } = taskDetails;
     await uploadRequest(auth.currentUser.uid, description, additionalDetails, taskState.selectedTask, locationString);
-    handleExit();
+    handleDialogExit();
   };
 
   // Exit

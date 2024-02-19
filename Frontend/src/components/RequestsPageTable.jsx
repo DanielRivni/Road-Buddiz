@@ -74,6 +74,8 @@ function RequestsPageTable() {
         return "#FFEB3B"; // Yellow
       case "בטיפול":
         return "#95F59C"; // Green
+      case "נסגר":
+        return "#FF3333"; // Red
       default:
         return "#FFFFFF"; // Default white
     }

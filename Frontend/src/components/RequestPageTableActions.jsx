@@ -11,21 +11,21 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CancelIcon from "@mui/icons-material/Cancel";
-import VolLocationDialog from './VolLocationDialog.jsx'
-import '../styles/RequestsPage.css';
+import VolLocationDialog from "./VolLocationDialog.jsx";
+import "../styles/RequestsPage.css";
 
 const TableActionsDialog = ({
   uid,
   handleDeleteRequest,
   isActiveTask,
-  status,
-  volLocation
+  status, // Pass status prop from parent component
+  volLocation,
 }) => {
   const [tableActionsDialogState, setTableActionsDialogState] = useState(false);
 
   const handleTableActionsDialogClose = () => {
-    setTableActionsDialogState(false)
-  }
+    setTableActionsDialogState(false);
+  };
 
   return (
     <>
@@ -39,22 +39,32 @@ const TableActionsDialog = ({
         >
           <SettingsIcon />
         </Button>
-        <Dialog open={tableActionsDialogState} onClose={handleTableActionsDialogClose}>
+        <Dialog
+          open={tableActionsDialogState}
+          onClose={handleTableActionsDialogClose}
+        >
           <DialogTitle>פעולות נוספות</DialogTitle>
           <DialogContent>
             <List className="openTask-task-list">
-              <VolLocationDialog volLocation={volLocation}/>
+              <VolLocationDialog volLocation={volLocation} status={status} />{" "}
+              {/* Pass status prop */}
               <ListItemButton
                 onClick={() => handleDeleteRequest(uid)}
                 disabled={!isActiveTask(status)}
-                sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '2em'}}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "2em",
+                }}
                 style={{
                   backgroundColor: isActiveTask(status) ? "#FF3333  " : "",
                   color: isActiveTask(status) ? "white" : "primary",
                 }}
               >
                 <ListItemText primary={"ביטול סיוע"} />
-                <ListItemIcon sx={{minWidth: '0', color: 'white'}}>
+                <ListItemIcon sx={{ minWidth: "0", color: "white" }}>
                   <CancelIcon />
                 </ListItemIcon>
               </ListItemButton>

@@ -12,7 +12,7 @@ import MapComponent from './MapComponent.jsx';
 import '../styles/RequestsPage.css';
 import { useState } from "react";
 
-const VolLocationDialog = ({ volLocation }) => {
+const VolLocationDialog = ({ volLocation, status }) => {
     const [volLocationDialogState, setVolLocationDialogState] = useState(false)
     const handleVolLocationDialogClose = () => {
         setVolLocationDialogState(false)
@@ -26,9 +26,12 @@ const VolLocationDialog = ({ volLocation }) => {
         <>
             <div>
                 <ListItemButton
+                    disabled={status === "נסגר"} // Disable if status is "נסגר"
                     sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '2em' }}
                     onClick={() => {
-                        setVolLocationDialogState(true)
+                        if (status !== "נסגר") { // Open dialog only if status is not "נסגר"
+                            setVolLocationDialogState(true)
+                        }
                     }}
                 >
                     <ListItemText primary={"מיקום מתנדב"} />

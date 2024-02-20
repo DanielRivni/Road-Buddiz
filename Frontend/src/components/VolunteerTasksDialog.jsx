@@ -16,12 +16,15 @@ import {
 } from "../middleware/firestore/requests";
 import { getAuth } from "firebase/auth";
 import { readFirestoreDocument } from "../middleware/firestore";
+import CloseTaskDialog from "../components/CloseTaskDialog";
+
 
 const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
   const [taskDetails, setTaskDetails] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [showCloseDialog, setShowCloseDialog] = useState(false); 
 
   useEffect(() => {
     const fetchTaskDetails = async () => {
@@ -52,20 +55,20 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
       return;
     }
     
-    // Update the status and assign the task
     handleStatusChange("בטיפול");
     await assignRequest(task.id, volUid);
     onClose();
   };
 
   const handleUnchooseTask = async () => {
-    const volUid = getAuth().currentUser.uid;
-    if (taskDetails.volUid !== volUid) {
+    const currentUser = getAuth().currentUser;
+    const volUid = currentUser ? currentUser.uid : null;
+    if (!taskDetails || (taskDetails && taskDetails.volUid !== volUid)) {
       setSnackbarOpen(true);
       setSnackbarMessage("אינך מורשה לבטל סיוע למשימה זו");
       return;
     }
-
+  
     handleStatusChange("מחכה לסיוע");
     await cancelRequestAssignment(task.id);
     onClose();
@@ -73,6 +76,14 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
+  };
+
+  const handleOpenCloseDialog = () => {
+    setShowCloseDialog(true);
+  };
+
+  const handleCloseCloseDialog = (additionalInfo) => {
+    setShowCloseDialog(false);
   };
 
   return (
@@ -103,7 +114,8 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
           sx={{
             display: "flex",
             marginTop: "36px",
-            justifyContent: "space-between",
+            justifyContent: "center",
+            gap: "16px",
           }}
         >
           <Button
@@ -120,13 +132,22 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
           >
             בטל סיוע
           </Button>
+          {taskDetails && taskDetails.volUid === getAuth().currentUser.uid && (
+            <Button
+              variant="contained"
+              style={{ backgroundColor: 'red', color: 'white' }}
+              onClick={handleOpenCloseDialog}
+            >
+              סגור בקשה
+            </Button>
+          )}
         </Box>
       </Box>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position at the top center
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <MuiAlert
           onClose={handleCloseSnackbar}
@@ -137,6 +158,9 @@ const VolunteerTasksDialog = ({ task, isOpen, onClose, onStatusChange }) => {
           {snackbarMessage}
         </MuiAlert>
       </Snackbar>
+      {showCloseDialog && (
+        <CloseTaskDialog taskID={task.id} onCloseTask={handleCloseCloseDialog} />
+      )}
     </Dialog>
   );
 };

@@ -172,11 +172,10 @@ const VolunteerTaskPage = () => {
               </TableHead>
 
               <TableBody>
-                {tasks.map((task) => (
-                  <TableRow
-                    onClick={() => handleTaskSelect(task)}
-                    key={task.id}
-                  >
+              {tasks
+                .filter((task) => task.status !== "נסגר") // Filter out tasks with status "נסגר"
+                .map((task) => (
+                  <TableRow onClick={() => handleTaskSelect(task)} key={task.id}>
                     <TableCell>{task.name}</TableCell>
                     <TableCell>{task.status}</TableCell>
                     <TableCell

@@ -106,23 +106,48 @@ export const listenToAllRequests = async (callback) => {
     console.error("Error at listenToAllRequests", error);
   }
 }
-
 export const GetGuide = async (task) => {
   try {
-    const guideDoc = await getDocumentsByQuery("guides", {
+    const guideDocs = await getDocumentsByQuery("guides", {
       fieldName: "task",
       operation: "==",
       value: task,
     });
-    if (guideDoc.length === 0) {
-      console.error("No guide found for task: ", task);
-      return [];
+
+    console.log("Guide documents:", guideDocs);
+
+    if (guideDocs.length === 0) {
+      console.error("No guide found for task:", task);
+      return null;
     }
-    return guideDoc[0].steps;
+
+    const firstGuideDoc = guideDocs[0];
+
+    if (!firstGuideDoc) {
+      console.error("Invalid guide document:", firstGuideDoc);
+      return null;
+    }
+
+    const { steps, video_url } = firstGuideDoc;
+
+    if (!steps || !video_url) {
+      console.error("Guide data is incomplete:", firstGuideDoc);
+      return null;
+    }
+
+    console.log("Guide data:", { steps, video_url });
+
+    return {
+      steps,
+      video_url,
+    };
   } catch (error) {
-    console.error("Error at GetGuideDoc", error);
+    console.error("Error at GetGuide:", error);
+    return null;
   }
 };
+
+
 
 export const assignRequest = async (requestId, volUid) => {
   try {

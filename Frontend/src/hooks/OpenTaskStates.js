@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { GetGuide, uploadRequest } from '../middleware/firestore/requests';
 import { getAuth } from 'firebase/auth';
-
+import StepByStepGuide from '../components/IssueGuide.jsx'
 const OpenTaskHook = () => {
-  // Dialog States
   const [taskState, setTaskState] = useState({
     selectedTask: null,
     dialogOpen: false,
@@ -11,6 +10,9 @@ const OpenTaskHook = () => {
     formDialogOpen: false,
     guideOpen: false
   });
+
+  const [guideSteps, setGuideSteps] = useState([]);
+  const [video_url, setVideoUrl] = useState(""); // Updated state name
 
   const handleDialogOpen = () => {
     setTaskState({
@@ -27,16 +29,14 @@ const OpenTaskHook = () => {
       guideOpen: true,
       chooseTask: false
     });
-    const steps = await GetGuide(task);
-    if (steps.length === 0) {
-      print("No guide found for task: ", task);
+    const { steps, video_url } = await GetGuide(task);
+    if (!steps || steps.length === 0) {
+      console.log("No guide found for task: ", task);
       return;
     }
     setGuideSteps(steps);
+    setVideoUrl(video_url);
   };
-
-  // Guide States
-  const [guideSteps, setGuideSteps] = useState([])
 
   const handleGuideContinue = () => {
     setTaskState({
@@ -46,12 +46,11 @@ const OpenTaskHook = () => {
     });
   };
 
-  // Form States
   const [taskDetails, setTaskDetails] = useState({
     description: "",
     additionalDetails: "",
     image: null,
-    locationString:''
+    locationString: ''
   });
 
   const handleFormTextChange = (event) => {
@@ -78,17 +77,15 @@ const OpenTaskHook = () => {
   };
 
   const handleFormSubmit = async (event) => {
-    const auth = getAuth();
     event.preventDefault();
     const { description, additionalDetails, image, locationString } = taskDetails;
+    const auth = getAuth();
     await uploadRequest(auth.currentUser.uid, description, additionalDetails, taskState.selectedTask, locationString);
     handleDialogExit();
   };
 
-  // Exit
   const handleDialogExit = () => {
     setTaskState({
-      ...taskState,
       selectedTask: null,
       dialogOpen: false,
       chooseTask: false,
@@ -99,12 +96,16 @@ const OpenTaskHook = () => {
       description: "",
       additionalDetails: "",
       image: null,
+      locationString: ""
     });
+    setGuideSteps([]);
+    setVideoUrl(""); // Clear video URL
   };
 
   return {
     taskState,
     guideSteps,
+    video_url,
     taskDetails,
     handleFormTextChange,
     handleFormImageChange,
@@ -115,6 +116,6 @@ const OpenTaskHook = () => {
     handleDialogExit,
     handleGuideContinue
   };
-}
+};
 
 export default OpenTaskHook;

@@ -1,37 +1,116 @@
-import React from 'react';
-import { Typography, List, ListItem, Box, Button, Card, CardContent } from '@mui/material';
+import React, { useState } from "react";
+import {
+  Typography,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Modal,
+} from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
-const StepByStepGuide = ({ steps, selectedTask, onContinue, onExit }) => {
-    return (
-        <Card >
-            <CardContent style={{ textAlign: 'center' }} >
-                <Typography variant="h4" gutterBottom>
-                    מדריך {selectedTask}
-                </Typography>
-                <List style={{ textAlign: 'center' }}>
-                    {steps.map((step, index) => {
-                        const [title, description] = step.split(':');
-                        const stepTitle = `${index + 1}. ${title}`;
-                        return (
-                            <ListItem key={index} >
-                                <span style={{  textAlign: 'right' }}>
-                                    <b>{stepTitle}:</b> {description}
-                                </span>
-                            </ListItem>
-                        );
-                    })}
-                </List>
-                <Box display="flex" justifyContent="space-between" mt={2}>
-                    <Button onClick={onExit} variant="contained" color="secondary">
-                        יציאה
-                    </Button>
-                    <Button onClick={onContinue} variant="contained" color="primary">
-                        המשך
-                    </Button>
-                </Box>
-            </CardContent>
-        </Card>
-    );
+const StepByStepGuide = ({
+  steps,
+  video_url,
+  selectedTask,
+  onContinue,
+  onExit,
+}) => {
+  const [openVideo, setOpenVideo] = useState(false);
+
+  const handlePrint = (event) => {
+    event.preventDefault();
+  };
+
+  const handleOpenVideo = () => {
+    setOpenVideo(true);
+  };
+
+  const handleCloseVideo = () => {
+    setOpenVideo(false);
+  };
+
+  return (
+    <Card>
+      <CardContent style={{ fontFamily: "Comic Sans MS" }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          מדריך: {selectedTask}
+        </Typography>
+        {steps.length > 0 ? (
+          <Box style={{ textAlign: "right" }}>
+            {steps.map((step, index) => (
+              <Typography
+                variant="body1"
+                key={index}
+                paragraph
+                style={{ marginBottom: "4px" }}
+              >
+                <b>שלב {index + 1}:</b> {step}
+              </Typography>
+            ))}
+          </Box>
+        ) : (
+          <Typography variant="body1">לא נמצאו שלבים.</Typography>
+        )}
+      </CardContent>
+      <Box display="flex" justifyContent="center" mt={2} mx={2}>
+        <Button
+          onClick={handleOpenVideo}
+          variant="contained"
+          color="primary"
+          startIcon={<PlayArrowIcon />}
+        >
+          לצפיה בסרטון
+        </Button>
+      </Box>
+      <Modal open={openVideo} onClose={handleCloseVideo} maxWidth="md">
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            maxWidth: "100%",
+            maxHeight: "100%",
+            width: "auto",
+            height: "auto",
+          }}
+        >
+          {video_url && (
+            <iframe
+              width="100%"
+              height="100%"
+              src={video_url}
+              title="Task Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          )}
+        </Box>
+      </Modal>
+      <div style={{ display: "none" }}>
+        <Button id="printButton" onClick={handlePrint} />
+      </div>
+      <Box display="flex" justifyContent="space-between" mt={2} mx={2}>
+        <Button
+          type="button"
+          onClick={onExit}
+          variant="contained"
+          color="secondary"
+        >
+          יציאה
+        </Button>
+        <Button
+          type="button"
+          onClick={onContinue}
+          variant="contained"
+          color="primary"
+        >
+          המשך לפתיחת התקלה
+        </Button>
+      </Box>
+    </Card>
+  );
 };
 
 export default StepByStepGuide;

@@ -1,7 +1,14 @@
 import React from "react";
 import {
-  Dialog, DialogTitle, DialogContent, List, ListItemButton, ListItemIcon, ListItemText,
-  Button, Typography
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Button,
+  Typography,
 } from "@mui/material";
 import { LocalGasStation, TireRepair, Cable } from "@mui/icons-material";
 import "../styles/OpenTaskPage.css";
@@ -10,9 +17,10 @@ import StepByStepGuide from "./IssueGuide";
 import OpenTaskHook from "../hooks/OpenTaskStates";
 
 const OpenTaskPage = () => {
-  const { ...rest } = OpenTaskHook();
-  const services = ["שירות דלק", "החלפת צמיג", "טעינת/החלפת מצבר"];
-  const contactUsText = "אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.";
+  const { taskState, guideSteps, video_url, ...rest } = OpenTaskHook();
+  const services = ["שירות שמן/דלק/מים", "החלפת צמיג", "טעינת/החלפת מצבר"];
+  const contactUsText =
+    "אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.";
 
   return (
     <>
@@ -25,35 +33,48 @@ const OpenTaskPage = () => {
           פתיחת תקלה
         </Button>
         <Dialog
-          open={rest.taskState.dialogOpen}
+          open={taskState.dialogOpen}
           onClose={rest.handleDialogExit} // Add onClose event handler
           slots={{
             backdrop: (props) => (
               <div
                 {...props}
-                style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                }}
               />
-            )
+            ),
           }}
         >
-          {rest.taskState.chooseTask && (
+          {taskState.chooseTask && (
             <>
               <DialogTitle>בחר תקלה</DialogTitle>
               <DialogContent>
                 <List className="openTask-task-list">
-                  <ListItemButton onClick={() => rest.handleTaskSelection(services[0])}>
+                  <ListItemButton
+                    onClick={() => rest.handleTaskSelection(services[0])}
+                  >
                     <ListItemText primary={services[0]} />
                     <ListItemIcon>
                       <LocalGasStation />
                     </ListItemIcon>
                   </ListItemButton>
-                  <ListItemButton onClick={() => rest.handleTaskSelection(services[1])}>
+                  <ListItemButton
+                    onClick={() => rest.handleTaskSelection(services[1])}
+                  >
                     <ListItemText primary={services[1]} />
                     <ListItemIcon>
                       <TireRepair />
                     </ListItemIcon>
                   </ListItemButton>
-                  <ListItemButton onClick={() => rest.handleTaskSelection(services[2])}>
+                  <ListItemButton
+                    onClick={() => rest.handleTaskSelection(services[2])}
+                  >
                     <ListItemText primary={services[2]} />
                     <ListItemIcon>
                       <Cable />
@@ -67,22 +88,23 @@ const OpenTaskPage = () => {
             </>
           )}
           {/* Inserting StepByStepGuide and TaskForm inside the Dialog */}
-          {rest.taskState.selectedTask && (
+          {taskState.selectedTask && (
             <>
-              {rest.taskState.guideOpen && (
-                <div id='issue-guide'>
+              {taskState.guideOpen && (
+                <div id="issue-guide">
                   <StepByStepGuide
-                    steps={rest.guideSteps}
-                    selectedTask={rest.taskState.selectedTask}
+                    steps={guideSteps}
+                    selectedTask={taskState.selectedTask}
+                    video_url={video_url} // Pass videoUrl prop here
                     onContinue={rest.handleGuideContinue}
                     onExit={rest.handleDialogExit}
                   />
                 </div>
               )}
-              {rest.taskState.formDialogOpen && (
-                <div id='task-form'>
+              {taskState.formDialogOpen && (
+                <div id="task-form">
                   <TaskForm
-                    selectedTask={rest.taskState.selectedTask}
+                    selectedTask={taskState.selectedTask}
                     taskDetails={rest.taskDetails}
                     onExit={rest.handleDialogExit}
                     onSubmit={rest.handleFormSubmit}

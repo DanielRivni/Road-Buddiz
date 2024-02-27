@@ -1,42 +1,79 @@
 import "../styles/Profile.css";
-import React, { useEffect } from 'react';
-import { Card, CardContent, Typography, CardActions, TextField, Box } from '@mui/material';
+import React, { useEffect, useState } from "react";
 import {
-  DeleteConfirmation, EditProfileButton, EditAccountButton, ProfileEditButtons,
-  AccountEditButtons, DeleteButton, UploadAvatar
+  Card,
+  CardContent,
+  Typography,
+  CardActions,
+  TextField,
+  Box,
+} from "@mui/material";
+import {
+  DeleteConfirmation,
+  EditProfileButton,
+  EditAccountButton,
+  ProfileEditButtons,
+  AccountEditButtons,
+  DeleteButton,
+  UploadAvatar,
 } from "../components/Profile";
-import { VolunteerMenuList } from '../components/Menu';
+import { VolunteerMenuList } from "../components/Menu";
 import { readFirestoreDocument } from "../middleware/firestore";
-import profileHook from '../hooks/profileStates.js';
+import profileHook from "../hooks/profileStates.js";
 import { getAuth } from "firebase/auth";
 
 export default function VolunteerProfile() {
-  const shouldRenderButtons = () => !rest.editingAccount && !rest.deleteConfirmation;
+  const shouldRenderButtons = () =>
+    !rest.editingAccount && !rest.deleteConfirmation;
   const { ...rest } = profileHook();
-  const accountErrors = { email: rest.emailError, password: rest.passwordError }
-  const profileErrors = { firstname: rest.firstnameError, lastname: rest.lastnameError, phone: rest.phoneError }
+  const accountErrors = {
+    email: rest.emailError,
+    password: rest.passwordError,
+  };
+  const profileErrors = {
+    firstname: rest.firstnameError,
+    lastname: rest.lastnameError,
+    phone: rest.phoneError,
+  };
   const fullName = `${rest.firstname} ${rest.lastname}`;
   const closedTasksCount = rest.closedTasksCount;
   const auth = getAuth();
-
+  const [type1Id, setType1Id] = useState(null); // State to store the type1Id value
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDocument = await readFirestoreDocument("users", auth.currentUser.uid);
+        const userDocument = await readFirestoreDocument(
+          "users",
+          auth.currentUser.uid
+        );
         if (!userDocument) {
           console.log("User not found!");
           return;
         }
 
-        const { firstName, lastName, phoneNumber, email, profileImg } = userDocument;
+        const { firstName, lastName, phoneNumber, email, profileImg, type1Id } =
+          userDocument; // Added type1Id here
 
-        if (firstName === undefined | lastName === undefined | phoneNumber === undefined | email === undefined) {
-          console.error("User data is missing fields or incorrect named fields");
+        if (
+          (firstName === undefined) |
+          (lastName === undefined) |
+          (phoneNumber === undefined) |
+          (email === undefined)
+        ) {
+          console.error(
+            "User data is missing fields or incorrect named fields"
+          );
           return;
         }
 
-        await rest.initProfile(firstName, lastName, phoneNumber, email, profileImg);
-
+        await rest.initProfile(
+          firstName,
+          lastName,
+          phoneNumber,
+          email,
+          profileImg
+        );
+        setType1Id(type1Id); // Set the type1Id state
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -57,28 +94,29 @@ export default function VolunteerProfile() {
 
       {/* Page Content */}
       <div className="cards-container">
-        <Card className="profile-card" style={{ minHeight: '720px' }}>
-
+        <Card className="profile-card" style={{ minHeight: "720px" }}>
           {/* Profile Content*/}
-          <CardContent >
+          <CardContent>
             <UploadAvatar
               firstname={rest.firstname}
               lastname={rest.lastname}
               file={rest.img}
               handleFileChange={rest.handleImgChange}
               handleImageRemove={rest.handleImageRemove}
-              editingProfile={rest.editingProfile} />
+              editingProfile={rest.editingProfile}
+            />
 
             {rest.editingProfile ? (
               <Box
                 component="form"
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  '& > :not(style)': { m: 1, width: '30ch' },
-                }}>
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "& > :not(style)": { m: 1, width: "30ch" },
+                }}
+              >
                 <TextField
                   error={rest.firstnameError}
                   helperText={rest.firstnameError ? "שם פרטי לא תקין" : ""}
@@ -103,24 +141,31 @@ export default function VolunteerProfile() {
                   value={rest.editedPhone}
                   onChange={rest.handlePhoneChange}
                 />
-
               </Box>
             ) : (
               <Box>
-                <Typography variant="h4" component="div" gutterBottom style={{ fontWeight: 'bold', textAlign: 'center' }}>
+                <Typography
+                  variant="h4"
+                  component="div"
+                  gutterBottom
+                  style={{ fontWeight: "bold", textAlign: "center" }}
+                >
                   {fullName}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
                   טלפון: {rest.phone}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
-                  תאריך הצטרפות: {new Date(auth.currentUser.metadata.creationTime).toLocaleDateString()}
+                  תאריך הצטרפות:{" "}
+                  {new Date(
+                    auth.currentUser.metadata.creationTime
+                  ).toLocaleDateString()}
                 </Typography>
                 <Typography variant="h5" component="div" gutterBottom>
                   כמות סיועים: {closedTasksCount}
                 </Typography>
-                <Typography variant="h5" component="div" gutterBottom >
-                  מספר מתנדב: 666
+                <Typography variant="h5" component="div" gutterBottom>
+                  מספר מתנדב: {type1Id !== null ? type1Id : ""}
                 </Typography>
               </Box>
             )}
@@ -128,17 +173,23 @@ export default function VolunteerProfile() {
 
           {/* Buttons */}
           <CardActions>
-            {rest.editingProfile &&
+            {rest.editingProfile && (
               <ProfileEditButtons
                 handleSaveClick={rest.handleSaveClick}
                 handleCancelClick={rest.handleCancelClick}
-                errors={profileErrors} />
-            }
-            {!rest.editingProfile && <EditProfileButton onClick={rest.handleEditClick} />}
+                errors={profileErrors}
+              />
+            )}
+            {!rest.editingProfile && (
+              <EditProfileButton onClick={rest.handleEditClick} />
+            )}
           </CardActions>
 
           {/* Account Content */}
-          <CardContent className='account-details' style={{ display: 'flex', flexDirection: 'column' }}>
+          <CardContent
+            className="account-details"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
             {rest.editingAccount ? (
               <div>
                 <div>
@@ -154,7 +205,9 @@ export default function VolunteerProfile() {
                 <div>
                   <TextField
                     error={rest.passwordError}
-                    helperText={rest.passwordError ? "חובה 6 תווים, אות ומספר" : ""}
+                    helperText={
+                      rest.passwordError ? "חובה 6 תווים, אות ומספר" : ""
+                    }
                     variant="outlined"
                     placeholder="סיסמה"
                     value={rest.editedPassword}
@@ -173,20 +226,32 @@ export default function VolunteerProfile() {
 
           {/* Buttons */}
           <CardActions>
-            <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-              {shouldRenderButtons() && <EditAccountButton onClick={rest.handleEditAccountClick} />}
-              {shouldRenderButtons() && <DeleteButton onClick={() => rest.setDeleteConfirmation(true)} />}
+            <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+              {shouldRenderButtons() && (
+                <EditAccountButton onClick={rest.handleEditAccountClick} />
+              )}
+              {shouldRenderButtons() && (
+                <DeleteButton
+                  onClick={() => rest.setDeleteConfirmation(true)}
+                />
+              )}
             </div>
-            {rest.editingAccount &&
+            {rest.editingAccount && (
               <AccountEditButtons
                 handleSaveClick={rest.handleSaveAccountClick}
                 handleCancelClick={rest.handleCancelAccountClick}
                 errors={accountErrors}
-              />}
-            {rest.deleteConfirmation && <DeleteConfirmation confirmDelete={rest.confirmDelete} closeDeleteConfirmation={rest.closeDeleteConfirmation} />}
+              />
+            )}
+            {rest.deleteConfirmation && (
+              <DeleteConfirmation
+                confirmDelete={rest.confirmDelete}
+                closeDeleteConfirmation={rest.closeDeleteConfirmation}
+              />
+            )}
           </CardActions>
-        </Card >
-      </div >
+        </Card>
+      </div>
     </>
   );
 }

@@ -3,11 +3,12 @@ import {
   Card, CardContent, CardActions, Typography, TextField, Button,
   Select, MenuItem, FormControlLabel, Checkbox, Snackbar, Alert
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
 import { addUserToFirestore } from "../middleware/firestore/users/index.js";
 import { useNavigate } from "react-router-dom";
-import {getDocumentsByQuery} from "../middleware/firestore/index.js";
+import { getDocumentsByQuery } from "../middleware/firestore/index.js";
+import CustomizedDialogs from "./TermsOfUseDialog.jsx";
 
 function SignUpCard() {
   const navigate = useNavigate();
@@ -40,14 +41,17 @@ function SignUpCard() {
     };
 
     const errors = Object.entries(fields).reduce((acc, [key, value]) => {
-      if (!value) acc[key] = true;
+      if (key !== "lastName" && !value) {
+        acc[key] = true;
+      }
       return acc;
-    }, {});
+    }, {});    
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
+    console.log("registering user");
 
     // Check if email or phone number is already in use
     try {
@@ -55,29 +59,30 @@ function SignUpCard() {
       if (userExists) {
         setOpenErrorSnackbar(true);
         return;
-      }    
-
-    const userCredentials = await craeteNewUserWithEmailAndPassword(
-      email,
-      password
-    );
-    if (userCredentials) {
-      const added = await addUserToFirestore(
-        {
-          firstName,
-          lastName,
-          email,
-          phoneNumber,
-          userType,
-        },
-        userCredentials?.user?.uid
-      );
-      if (added) {
-        setOpenSuccessSnackbar(true);
-        navigate("/", { state: { openSuccessSnackbar: true } });
       }
-    }
-   } catch (error) {
+
+      const userCredentials = await craeteNewUserWithEmailAndPassword(
+        email,
+        password
+      );
+      if (userCredentials) {
+        const added = await addUserToFirestore(
+          {
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            userType,
+          },
+          userCredentials?.user?.uid
+        );
+        if (added) {
+          console.log("User added successfully");
+          setOpenSuccessSnackbar(true);
+          navigate("/", { state: { openSuccessSnackbar: true } });
+        }
+      }
+    } catch (error) {
       console.error("Error registering user:", error);
     }
   };
@@ -104,8 +109,6 @@ function SignUpCard() {
       return true;
     }
   };
-
-
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -259,14 +262,7 @@ function SignUpCard() {
             id="signup-page-card-actions"
             className="center-div-column"
           >
-            <Button
-              className="signup-page-card-actions-button"
-              variant="contained"
-              color="primary"
-              onClick={registerUser}
-            >
-              הירשם
-            </Button>
+            <CustomizedDialogs handleSignup={registerUser} />
             <div id="signup-page-remember-me-check-box">
               <FormControlLabel
                 control={<Checkbox defaultChecked />}
@@ -307,21 +303,21 @@ function SignUpCard() {
       </Snackbar>
 
       <Snackbar
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      open={openErrorSnackbar}
-      autoHideDuration={6000}
-      onClose={handleCloseErrorSnackbar} 
-    >
-      <Alert
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={openErrorSnackbar}
+        autoHideDuration={6000}
         onClose={handleCloseErrorSnackbar}
-        severity="error"
-        sx={{ width: "100%" }}
       >
-        <div style={{ marginRight: "10px", marginLeft: "10px" }}>
-          כתובת האימייל או מספר הטלפון כבר קיימים במערכת
-        </div>
-      </Alert>
-    </Snackbar>     
+        <Alert
+          onClose={handleCloseErrorSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          <div style={{ marginRight: "10px", marginLeft: "10px" }}>
+            כתובת האימייל או מספר הטלפון כבר קיימים במערכת
+          </div>
+        </Alert>
+      </Snackbar>
     </>
   );
 }

@@ -245,7 +245,6 @@ const profileHook = () => {
         setImg(downloadURL);
       }
       const closedTasks = await getClosedRequestsByVol(uid);
-      console.log(closedTasks.length);
       setClosedTasksCount(closedTasks.length);
     } catch (error) {
       console.log(error);

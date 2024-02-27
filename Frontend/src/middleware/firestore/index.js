@@ -259,3 +259,42 @@ export const listenToDocumentsByQueryRealTimeWithId = (
   }
 };
 
+
+export const checkType1IdValidity = async (type1id) => {
+  try {
+    // Check if the provided Type1 ID exists in any document in the allowed IDs collection
+    const allowedIdsDocs = await getDocs(collection(db, "AllowedType1Ids"));
+    let isValidType1Id = false;
+
+    allowedIdsDocs.forEach((doc) => {
+      const allowedIds = doc.data().allowed_ids;
+      console.log("Allowed IDs:", allowedIds); // Debug logging
+      if (allowedIds && allowedIds.includes(type1id)) {
+        isValidType1Id = true;
+      }
+    });
+
+    console.log("Is Valid Type1 ID:", isValidType1Id); // Debug logging
+
+    return isValidType1Id;
+  } catch (error) {
+    console.error("Error checking Type1 ID validity:", error);
+    return false;
+  }
+};
+
+export const checkType1IdAvailability = async (type1id) => {
+  try {
+    // Check if the Type1 ID is already in use by another user
+    const userExists = await getDocumentsByQuery("users", {
+      fieldName: "type1Id",
+      operation: "==",
+      value: type1id,
+    });
+
+    return userExists.length === 0;
+  } catch (error) {
+    console.error("Error checking Type1 ID availability:", error);
+    return false;
+  }
+};

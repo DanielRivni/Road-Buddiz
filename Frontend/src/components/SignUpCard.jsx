@@ -1,14 +1,28 @@
 import "../styles/SignUpPage.css";
 import {
-  Card, CardContent, CardActions, Typography, TextField, Button,
-  Select, MenuItem, FormControlLabel, Checkbox, Snackbar, Alert
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { craeteNewUserWithEmailAndPassword } from "../middleware/auth";
 import { addUserToFirestore } from "../middleware/firestore/users/index.js";
 import { useNavigate } from "react-router-dom";
 import { getDocumentsByQuery } from "../middleware/firestore/index.js";
 import CustomizedDialogs from "./TermsOfUseDialog.jsx";
+import {
+  checkType1IdValidity,
+  checkType1IdAvailability,
+} from "../middleware/firestore/index.js";
 
 function SignUpCard() {
   const navigate = useNavigate();
@@ -21,6 +35,7 @@ function SignUpCard() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [userType, setUserType] = useState(2);
   const [password, setPassword] = useState("");
+  const [type1Id, setType1Id] = useState(""); // New state for Type1 ID
   const [formErrors, setFormErrors] = useState({
     firstName: false,
     lastName: false,
@@ -29,7 +44,7 @@ function SignUpCard() {
     userType: false,
     password: false,
   });
-
+  const [openAlert, setOpenAlert] = useState(false); // State for controlling the alert visibility
   const registerUser = async () => {
     const fields = {
       firstName,
@@ -45,20 +60,32 @@ function SignUpCard() {
         acc[key] = true;
       }
       return acc;
-    }, {});    
+    }, {});
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-    console.log("registering user");
 
-    // Check if email or phone number is already in use
     try {
       const userExists = await checkUserExists(email, phoneNumber);
       if (userExists) {
         setOpenErrorSnackbar(true);
         return;
+      }
+
+      if (userType === 1) {
+        const isType1IdValid = await checkType1IdValidity(type1Id);
+        if (!isType1IdValid) {
+          setOpenAlert(true);
+          return;
+        }
+
+        const isType1IdAvailable = await checkType1IdAvailability(type1Id);
+        if (!isType1IdAvailable) {
+          setOpenAlert(true);
+          return;
+        }
       }
 
       const userCredentials = await craeteNewUserWithEmailAndPassword(
@@ -73,11 +100,11 @@ function SignUpCard() {
             email,
             phoneNumber,
             userType,
+            type1Id,
           },
           userCredentials?.user?.uid
         );
         if (added) {
-          console.log("User added successfully");
           setOpenSuccessSnackbar(true);
           navigate("/", { state: { openSuccessSnackbar: true } });
         }
@@ -86,19 +113,18 @@ function SignUpCard() {
       console.error("Error registering user:", error);
     }
   };
-
   // Function to check if email or phone number already exists
   const checkUserExists = async (email, phoneNumber) => {
     try {
       const emailExists = await getDocumentsByQuery("users", {
         fieldName: "email",
         operation: "==",
-        value: email
+        value: email,
       });
       const phoneNumberExists = await getDocumentsByQuery("users", {
         fieldName: "phoneNumber",
         operation: "==",
-        value: phoneNumber
+        value: phoneNumber,
       });
 
       return emailExists.length > 0 || phoneNumberExists.length > 0;
@@ -150,6 +176,10 @@ function SignUpCard() {
     setPassword(event.target.value);
   };
 
+  const handleType1IdChange = (event) => {
+    setType1Id(event.target.value);
+  };
+
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       registerUser();
@@ -193,15 +223,15 @@ function SignUpCard() {
                 helperText={formErrors.firstName ? "שדה חובה" : ""}
                 onChange={handleFirstNameChange}
                 onKeyDown={handleKeyPress}
-              ></TextField>
+              />
               <TextField
                 className="signup-page-inputs"
                 variant="outlined"
-                placeholder=" (אופציונלי) שם משפחה"
+                placeholder="(אופציונלי) שם משפחה"
                 value={lastName}
                 onChange={handleLastNameChange}
                 onKeyDown={handleKeyPress}
-              ></TextField>
+              />
               <TextField
                 id="email-error"
                 error={formErrors.email || emailError}
@@ -209,8 +239,8 @@ function SignUpCard() {
                   formErrors.email
                     ? "שדה חובה"
                     : emailError
-                      ? "אימייל לא תקין"
-                      : ""
+                    ? "אימייל לא תקין"
+                    : ""
                 }
                 className="signup-page-inputs"
                 variant="outlined"
@@ -218,7 +248,7 @@ function SignUpCard() {
                 value={email}
                 onChange={handleEmailChange}
                 onKeyDown={handleKeyPress}
-              ></TextField>
+              />
               <TextField
                 className="signup-page-inputs"
                 variant="outlined"
@@ -228,7 +258,7 @@ function SignUpCard() {
                 helperText={formErrors.phoneNumber ? "שדה חובה" : ""}
                 onChange={handlePhoneNumberChange}
                 onKeyDown={handleKeyPress}
-              ></TextField>
+              />
               <Select
                 className="signup-page-inputs"
                 variant="outlined"
@@ -239,6 +269,16 @@ function SignUpCard() {
                 <MenuItem value={1}>מתנדב</MenuItem>
                 <MenuItem value={2}>זקוק לסיוע</MenuItem>
               </Select>
+              {userType === 1 && ( // Render Type1 ID field only if userType is 1
+                <TextField
+                  className="signup-page-inputs"
+                  variant="outlined"
+                  placeholder="מספר מתנדב"
+                  value={type1Id}
+                  onChange={handleType1IdChange}
+                  onKeyDown={handleKeyPress}
+                />
+              )}
             </div>
             <TextField
               className="signup-page-inputs"
@@ -246,17 +286,19 @@ function SignUpCard() {
               type="password"
               placeholder="סיסמה"
               value={password}
-              error={!!(formErrors.password || (password && password.length < 8))}
+              error={
+                !!(formErrors.password || (password && password.length < 8))
+              }
               helperText={
                 formErrors.password
                   ? "שדה חובה"
                   : password && password.length < 8
-                    ? "הסיסמה חייבת להיות לפחות 8 תווים"
-                    : ""
+                  ? "הסיסמה חייבת להיות לפחות 8 תווים"
+                  : ""
               }
               onChange={handlePasswordChange}
               onKeyDown={handleKeyPress}
-            ></TextField>
+            />
           </CardContent>
           <CardActions
             id="signup-page-card-actions"
@@ -283,7 +325,6 @@ function SignUpCard() {
               </div>
             </div>
           </CardActions>
-
         </Card>
       </div>
 
@@ -298,7 +339,9 @@ function SignUpCard() {
           severity="success"
           sx={{ width: "100%" }}
         >
-          <div style={{ marginRight: "10px", marginLeft: "10px" }}>הרשמה בוצעה בהצלחה!</div>
+          <div style={{ marginRight: "10px", marginLeft: "10px" }}>
+            הרשמה בוצעה בהצלחה!
+          </div>
         </Alert>
       </Snackbar>
 
@@ -316,6 +359,16 @@ function SignUpCard() {
           <div style={{ marginRight: "10px", marginLeft: "10px" }}>
             כתובת האימייל או מספר הטלפון כבר קיימים במערכת
           </div>
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={openAlert}
+        autoHideDuration={6000}
+        onClose={handleCloseErrorSnackbar}
+      >
+        <Alert severity="error" onClose={() => setOpenAlert(false)}>
+          מספר המתנדב שגוי/כבר נמצא בשימוש
         </Alert>
       </Snackbar>
     </>

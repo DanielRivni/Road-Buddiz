@@ -1,5 +1,6 @@
 import { updateFirestoreDocument, getDocumentsByQuery } from "../index.js";
 
+
 export const addUserToFirestore = async (user, uid) => {
   try {
     const newUserDoc = await updateFirestoreDocument("users", uid, user);
@@ -18,8 +19,6 @@ export const GetTerms = async () => {
       value: "TermsOfUse",
     });
 
-    //console.log("Terms doc:", termsOfUseDoc);
-
     if (termsOfUseDoc.length === 0) {
       console.error("No terms found for task:", task);
       return null;
@@ -32,11 +31,10 @@ export const GetTerms = async () => {
       return null;
     }
 
-    //console.log("TermsOfUse:", TermsOfUse);
-
     return TermsOfUse;
   } catch (error) {
     console.error("Error at GetGuide:", error);
     return null;
   }
 };
+

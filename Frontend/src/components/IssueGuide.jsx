@@ -31,7 +31,7 @@ const StepByStepGuide = ({
   };
 
   return (
-    <Card>
+    <Card style={{ maxHeight: "90vh", overflow: "auto" }}>
       <CardContent style={{ fontFamily: "Comic Sans MS" }}>
         <Typography variant="h4" align="center" gutterBottom>
           מדריך: {selectedTask}
@@ -53,16 +53,6 @@ const StepByStepGuide = ({
           <Typography variant="body1">לא נמצאו שלבים.</Typography>
         )}
       </CardContent>
-      <Box display="flex" justifyContent="center" mt={2} mx={2}>
-        <Button
-          onClick={handleOpenVideo}
-          variant="contained"
-          color="primary"
-          startIcon={<PlayArrowIcon />}
-        >
-          לצפיה בסרטון
-        </Button>
-      </Box>
       <Modal open={openVideo} onClose={handleCloseVideo} maxWidth="md">
         <Box
           sx={{
@@ -91,23 +81,43 @@ const StepByStepGuide = ({
       <div style={{ display: "none" }}>
         <Button id="printButton" onClick={handlePrint} />
       </div>
-      <Box display="flex" justifyContent="space-between" mt={2} mx={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        flexDirection="row"
+        margin={1}
+      >
         <Button
-          type="button"
-          onClick={onExit}
-          variant="contained"
-          color="secondary"
-        >
-          יציאה
-        </Button>
-        <Button
-          type="button"
-          onClick={onContinue}
-          variant="contained"
-          color="primary"
-        >
-          המשך לפתיחת התקלה
-        </Button>
+        type="button"
+        onClick={onExit}
+        variant="contained"
+        color="secondary"
+        style={{ width: '25%', textAlign: 'center' }}
+      >
+        יציאה
+      </Button>
+      <Button
+        onClick={handleOpenVideo}
+        variant="contained"
+        color="primary"
+        style={{
+          width: '25%',
+          backgroundColor: '#0000CC',
+          textAlign: 'center',
+        }} // Set width to 33% for equal width of all buttons
+        startIcon={<PlayArrowIcon />}
+      >
+        לצפיה בסרטון
+      </Button>
+      <Button
+        type="button"
+        onClick={onContinue}
+        variant="contained"
+        color="primary"
+        style={{ width: '25%', textAlign: 'center' }} // Set width to 33% for equal width of all buttons
+      >
+        המשך לפתיחת התקלה
+      </Button>
       </Box>
     </Card>
   );

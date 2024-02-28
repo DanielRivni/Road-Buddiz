@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CancelIcon from "@mui/icons-material/Cancel";
+import DeleteIcon from '@mui/icons-material/Delete';
 import VolLocationDialog from './VolLocationDialog.jsx'
 import '../styles/RequestsPage.css';
 import { deleteFirestoreDocument } from "../middleware/firestore/index"; // Import the function to delete a document
@@ -72,6 +73,7 @@ const TableActionsDialog = ({
                   sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '2em'}}
                 >
                   <ListItemText primary={"מחיקת בקשה"} />
+                  <DeleteIcon/>
                 </ListItemButton>
               )}
               <VolLocationDialog volLocation={volLocation}/>

@@ -104,7 +104,7 @@ const StepByStepGuide = ({
           width: '25%',
           backgroundColor: '#0000CC',
           textAlign: 'center',
-        }} // Set width to 33% for equal width of all buttons
+        }}
         startIcon={<PlayArrowIcon />}
       >
         לצפיה בסרטון
@@ -114,7 +114,7 @@ const StepByStepGuide = ({
         onClick={onContinue}
         variant="contained"
         color="primary"
-        style={{ width: '25%', textAlign: 'center' }} // Set width to 33% for equal width of all buttons
+        style={{ width: '25%', textAlign: 'center' }}
       >
         המשך לפתיחת התקלה
       </Button>

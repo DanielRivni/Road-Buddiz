@@ -45,7 +45,7 @@ export default function ClientProfile() {
   }, []);
 
   return (
-    <>
+    <div className="profile-container" style={{ overflowX: 'hidden' }}>
       {/* Title */}
       <div className="title-container">
         <h1 id="title" style={{ color: "#000000" }}>
@@ -182,6 +182,6 @@ export default function ClientProfile() {
 
         </Card >
       </div >
-    </>
+    </div>
   );
 }

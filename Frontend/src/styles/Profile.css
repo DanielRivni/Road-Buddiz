@@ -3,6 +3,12 @@ body {
   overflow-x: hidden;
 }
 
+@media (max-width: 768px) {
+  .cards-container {
+    margin-left: 15px;
+  }
+}
+
 /* Containers */
 .title-container {
   display: flex;

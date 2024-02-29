@@ -4,16 +4,14 @@ import logoWithoutBack from '../assets/logo-withoutback.png'
 
 function SignUpPage() {
   return (
-    <>
-      <div id="signup-page-content">
+    <div id="signup-page-content">
       <div className="top-center">
-      <img src={logoWithoutBack} />
+        <img src={logoWithoutBack} alt="Logo" />
       </div>
-      <div id="home-page-card">
+      <div id="signup-page-card">
         <SignUpCard />
-        </div>
       </div>
-    </>
+    </div>
   );
 }
 

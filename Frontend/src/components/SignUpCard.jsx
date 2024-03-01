@@ -305,11 +305,6 @@ function SignUpCard() {
             className="center-div-column"
           >
             <CustomizedDialogs handleSignup={registerUser} />
-            <div id="signup-page-remember-me-check-box">
-              <FormControlLabel
-                control={<Checkbox defaultChecked />}
-                label="זכור אותי"
-              />
               <div id="sign-in-text-container" className="center-div-row">
                 <CardContent>
                   <Typography
@@ -323,7 +318,6 @@ function SignUpCard() {
                   </Typography>
                 </CardContent>
               </div>
-            </div>
           </CardActions>
         </Card>
       </div>

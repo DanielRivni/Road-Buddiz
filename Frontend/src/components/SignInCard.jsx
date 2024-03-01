@@ -187,12 +187,6 @@ function SignInCard() {
             >
               היכנס
             </Button>
-            <div id="home-page-remember-me-check-box">
-              <FormControlLabel
-                control={<Checkbox defaultChecked />}
-                label="זכור אותי"
-              />
-            </div>
           </CardActions>
           <CardContent>
             <Typography

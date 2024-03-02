@@ -18,7 +18,7 @@ import OpenTaskHook from "../hooks/OpenTaskStates";
 
 const OpenTaskPage = () => {
   const { taskState, guideSteps, video_url, ...rest } = OpenTaskHook();
-  const services = ["שירות שמן/דלק/מים", "החלפת צמיג", "טעינת/החלפת מצבר"];
+  const services = ["שירות שמן", "החלפת צמיג", "טעינת/החלפת מצבר"];
   const contactUsText =
     "אם התקלה שלך אינה מופיעה, אנא צור קשר עם מוקד הטלפוני במספר 00000 לקבלת עזרה אישית.";
 
